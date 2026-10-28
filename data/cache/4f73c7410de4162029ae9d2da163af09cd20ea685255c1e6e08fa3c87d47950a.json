@@ -1,0 +1,42 @@
+{
+  "company": "Oracle Financial Services Software Limited",
+  "role": "Application Support Analyst",
+  "skills": [
+    {
+      "skill_name": "SQL",
+      "category_code": "SQL",
+      "evidence": "Comfort with basic SQL \u2014 simple SELECT/WHERE queries and an understanding of primary keys",
+      "confidence": "high"
+    },
+    {
+      "skill_name": "Linux",
+      "category_code": "OS",
+      "evidence": "Operating systems and Linux fundamentals \u2014 basic command-line usage, what a log file is",
+      "confidence": "high"
+    },
+    {
+      "skill_name": "Networking",
+      "category_code": "NETW",
+      "evidence": "Basic networking knowledge \u2014 what an IP address is, client-server architecture",
+      "confidence": "high"
+    },
+    {
+      "skill_name": "Logical Reasoning",
+      "category_code": "APTI",
+      "evidence": "Strong quantitative and logical reasoning \u2014 data interpretation from tables, arithmetic",
+      "confidence": "high"
+    },
+    {
+      "skill_name": "Communication",
+      "category_code": "COMM",
+      "evidence": "Excellent communication skills \u2014 able to explain a technical issue to a non-technical client",
+      "confidence": "high"
+    },
+    {
+      "skill_name": "Incident Management",
+      "category_code": "OTHER",
+      "evidence": "Prior exposure to a ticketing/incident system",
+      "confidence": "medium"
+    }
+  ]
+}

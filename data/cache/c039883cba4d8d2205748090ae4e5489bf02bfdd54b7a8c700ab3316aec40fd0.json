@@ -1,0 +1,66 @@
+{
+  "company": "Oracle Financial Services Software Limited",
+  "role": "Associate Software Engineer",
+  "skills": [
+    {
+      "skill_name": "Programming Fundamentals",
+      "category_code": "COD",
+      "evidence": "Solid programming fundamentals \u2014 able to read and predict the output of code",
+      "confidence": "high"
+    },
+    {
+      "skill_name": "SQL",
+      "category_code": "SQL",
+      "evidence": "Practical SQL knowledge \u2014 correct SELECT/WHERE syntax, understanding of DELETE vs. TRUNCATE",
+      "confidence": "high"
+    },
+    {
+      "skill_name": "Data Structures and Algorithms",
+      "category_code": "DSA",
+      "evidence": "Core data structures knowledge \u2014 arrays vs. linked lists, when to use a stack or a queue",
+      "confidence": "high"
+    },
+    {
+      "skill_name": "Object-Oriented Programming",
+      "category_code": "OOD",
+      "evidence": "Object-oriented programming fundamentals \u2014 inheritance, polymorphism, abstract classes",
+      "confidence": "high"
+    },
+    {
+      "skill_name": "Operating Systems",
+      "category_code": "OS",
+      "evidence": "Operating systems basics \u2014 what a process is, fundamentals of multithreading",
+      "confidence": "high"
+    },
+    {
+      "skill_name": "Quantitative Aptitude",
+      "category_code": "APTI",
+      "evidence": "Strong quantitative aptitude \u2014 time-and-work, ratios, percentages, and logical reasoning",
+      "confidence": "high"
+    },
+    {
+      "skill_name": "Communication",
+      "category_code": "COMM",
+      "evidence": "Clear communication and a collaborative attitude \u2014 comfortable explaining your final-year project",
+      "confidence": "high"
+    },
+    {
+      "skill_name": "Agile Methodologies",
+      "category_code": "SWE",
+      "evidence": "Awareness of the software development lifecycle and the difference between Agile and Waterfall",
+      "confidence": "high"
+    },
+    {
+      "skill_name": "Unit Testing",
+      "category_code": "SWE",
+      "evidence": "Perform unit testing and collaborate closely with QA",
+      "confidence": "medium"
+    },
+    {
+      "skill_name": "Banking Domain Knowledge",
+      "category_code": "OTHER",
+      "evidence": "Coursework or a project in banking/financial systems",
+      "confidence": "low"
+    }
+  ]
+}

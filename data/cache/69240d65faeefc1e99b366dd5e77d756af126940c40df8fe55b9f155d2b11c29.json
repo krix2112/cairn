@@ -1,0 +1,66 @@
+{
+  "company": "Microsoft Corporation",
+  "role": "Software Engineer",
+  "skills": [
+    {
+      "skill_name": "Data Structures and Algorithms",
+      "category_code": "DSA",
+      "evidence": "Strong data structures and algorithms fundamentals \u2014 hash maps, trees, and complexity analysis",
+      "confidence": "high"
+    },
+    {
+      "skill_name": "Coding",
+      "category_code": "COD",
+      "evidence": "Practical coding skills \u2014 pattern matching, interval problems, and writing code that performs well",
+      "confidence": "high"
+    },
+    {
+      "skill_name": "Operating Systems",
+      "category_code": "OS",
+      "evidence": "Working knowledge of operating systems (process scheduling, virtual memory, concurrency primitives)",
+      "confidence": "high"
+    },
+    {
+      "skill_name": "Networking",
+      "category_code": "NETW",
+      "evidence": "core networking (REST APIs, timeouts, request lifecycle)",
+      "confidence": "high"
+    },
+    {
+      "skill_name": "System Design",
+      "category_code": "SYSD",
+      "evidence": "Ability to design at the system level \u2014 sketch a cloud-based storage or notification service",
+      "confidence": "high"
+    },
+    {
+      "skill_name": "Object-Oriented Design",
+      "category_code": "OOD",
+      "evidence": "Understanding of object-oriented design and SOLID principles",
+      "confidence": "high"
+    },
+    {
+      "skill_name": "Software Engineering Best Practices",
+      "category_code": "SWE",
+      "evidence": "Software engineering maturity \u2014 clean code habits, a real testing strategy",
+      "confidence": "high"
+    },
+    {
+      "skill_name": "Communication",
+      "category_code": "COMM",
+      "evidence": "Strong communication \u2014 able to describe a hard problem you solved and how you collaborate",
+      "confidence": "high"
+    },
+    {
+      "skill_name": "Agile",
+      "category_code": "SWE",
+      "evidence": "Participate in Agile ceremonies and design reviews with your team",
+      "confidence": "medium"
+    },
+    {
+      "skill_name": "Cloud Infrastructure",
+      "category_code": "CLOUD",
+      "evidence": "Exposure to cloud infrastructure (Azure or similar)",
+      "confidence": "low"
+    }
+  ]
+}

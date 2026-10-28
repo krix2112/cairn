@@ -1,0 +1,36 @@
+{
+  "company": "Microsoft Corporation",
+  "role": "Data Analyst",
+  "skills": [
+    {
+      "skill_name": "SQL",
+      "category_code": "SQL",
+      "evidence": "Write and optimize SQL queries against large production datasets",
+      "confidence": "high"
+    },
+    {
+      "skill_name": "Dashboard Design",
+      "category_code": "OTHER",
+      "evidence": "Build dashboards and reporting that stakeholders actually use",
+      "confidence": "high"
+    },
+    {
+      "skill_name": "Data Communication",
+      "category_code": "COMM",
+      "evidence": "Communicate insights clearly to non-technical stakeholders",
+      "confidence": "high"
+    },
+    {
+      "skill_name": "Applied Statistics",
+      "category_code": "AI",
+      "evidence": "Basic applied statistics/ML literacy: regression vs. classification",
+      "confidence": "medium"
+    },
+    {
+      "skill_name": "Power BI",
+      "category_code": "OTHER",
+      "evidence": "Experience with a visualization tool (Power BI or similar)",
+      "confidence": "low"
+    }
+  ]
+}

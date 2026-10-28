@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cairn — Know your footing.</title>
+  <meta name="description" content="Talent readiness mapped as a physically lit 3D stone cairn. 12 competencies stacked against corporate hiring benchmarks in a dusk glass alpine world.">
+  <meta property="og:title" content="Cairn — Know your footing.">
+  <meta property="og:description" content="Talent readiness mapped as a 3D stone cairn against verified hiring benchmarks.">
+  <meta property="og:type" content="website">
+
+  <!-- Inline SVG Favicon (3 balanced stones with ember flag) -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cellipse cx='16' cy='24' rx='11' ry='4.5' fill='%236F6B65'/%3E%3Cellipse cx='16' cy='16' rx='8' ry='3.5' fill='%238C877D'/%3E%3Cellipse cx='16' cy='9' rx='5' ry='2.5' fill='%23B7AE9C'/%3E%3Cpath d='M16 6.5 L16 1.5 L22 3.5 Z' fill='%23FF7A3D'/%3E%3C/svg%3E">
+
+  <!-- Self-Hosted Stylesheets & Fonts -->
+  <link rel="stylesheet" href="styles.css?v=3.2">
+
+  <!-- Self-Hosted Vendor Libraries (Offline, No Build Step) -->
+  <script src="vendor/three.min.js"></script>
+  <script src="vendor/lenis.min.js"></script>
+  <script src="vendor/gsap.min.js"></script>
+  <script src="vendor/ScrollTrigger.min.js"></script>
+</head>
+<body class="dusk-glass-theme">
+
+  <!-- 0. Skippable Preloader Curtain (Max 1.2s, never blocks) -->
+  <aside id="cairn-preloader" class="cairn-preloader" aria-label="Loading Cairn 3D Scene">
+    <div class="preloader-curtain curtain-left"></div>
+    <div class="preloader-curtain curtain-right"></div>
+    <div class="preloader-content">
+      <div class="preloader-cairn-icon" aria-hidden="true">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="32" cy="48" rx="22" ry="7" fill="#3c424a" />
+          <ellipse cx="32" cy="36" rx="17" ry="5.5" fill="#525c66" />
+          <ellipse cx="32" cy="26" rx="12" ry="4" fill="#6e685f" />
+          <ellipse cx="32" cy="18" rx="8" ry="3" fill="#9BC53D" />
+          <path d="M32 16 V 6 L 44 10 Z" fill="#FF7A3D" />
+        </svg>
+      </div>
+      <div class="preloader-brand">Cairn</div>
+      <div class="preloader-status">Stacking 12 stones in the aurora...</div>
+      <button type="button" id="btn-skip-preloader" class="preloader-skip" aria-label="Skip introduction animation">
+        Skip intro &rarr;
+      </button>
+    </div>
+  </aside>
+
+  <!-- Persistent Full-Viewport Fixed 3D WebGL Canvas Stage (Aurora + 3D Stones) -->
+  <div id="cairn-persistent-stage" aria-hidden="true"></div>
+
+  <!-- Fixed Grain Filter Overlay -->
+  <svg class="grain-overlay" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <filter id="cairn-global-grain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="3" stitchTiles="stitch" />
+      <feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 0.035 0" />
+    </filter>
+    <rect width="100%" height="100%" filter="url(#cairn-global-grain)" />
+  </svg>
+
+  <!-- ====================================================================
+       NAVIGATION (Floating Dusk Glass Pill)
+       ==================================================================== -->
+  <header>
+    <nav class="site-nav glass-nav" aria-label="Main Navigation">
+      <a href="index.html" class="nav-brand" aria-label="Cairn Home">
+        <svg class="nav-glyph" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <ellipse cx="12" cy="18.5" rx="8.5" ry="3" fill="#6F6B65" />
+          <ellipse cx="12" cy="12.5" rx="6" ry="2.5" fill="#8C877D" />
+          <ellipse cx="12" cy="7.5" rx="4" ry="1.8" fill="#B7AE9C" />
+          <path d="M12 5.7 V 1.5 L 17 3.2 Z" fill="#FF7A3D" />
+          <circle cx="12" cy="5.8" r="1.1" fill="#FF7A3D" />
+        </svg>
+        <span>Cairn</span>
+      </a>
+
+      <div class="nav-links">
+        <a href="#climb" class="nav-link">The Climb</a>
+        <a href="#bento" class="nav-link">Features</a>
+        <a href="#waypoints" class="nav-link">12 Waypoints</a>
+        <a href="#method" class="nav-link">Method</a>
+        <a href="#faq" class="nav-link">FAQ</a>
+      </div>
+
+      <div class="nav-actions">
+        <!-- Theme Toggle (Dark / Light) -->
+        <button type="button" class="theme-toggle-btn soft-ui" id="theme-toggle" aria-label="Switch between Dusk Night and Warm Paper theme" title="Toggle Light/Dark Theme">
+          <svg class="icon-sun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg class="icon-moon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none;">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+
+        <!-- Reduced Motion Toggle -->
+        <button type="button" class="motion-toggle-btn soft-ui" id="motion-toggle" aria-label="Toggle animations and reduced motion" title="Reduce Motion">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+        </button>
+
+        <!-- Quality Setting (Auto / High / Lite) -->
+        <select id="quality-selector" class="soft-ui" style="height: 32px; padding: 0 10px; font-size: 11px; font-weight: 500; font-family: var(--font-ui); color: var(--c-bone); background: rgba(13, 27, 42, 0.6); border: 1px solid var(--c-hairline); border-radius: 999px; cursor: pointer; outline: none;" aria-label="Rendering Quality" title="Rendering Quality (Press 'F' key for FPS)">
+          <option value="auto">Quality: Auto</option>
+          <option value="high">Quality: High</option>
+          <option value="lite">Quality: Lite</option>
+        </select>
+
+        <a href="app.html" class="btn btn-primary btn-liquid">
+          <span class="liquid-blob"></span>
+          <span class="btn-text">Open Cairn</span>
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <!-- ====================================================================
+         1. HERO SECTION (Fraunces Reveal + Live 3D Cairn + Soft Switcher)
+         ==================================================================== -->
+    <section class="hero-section" id="hero">
+      <div class="hero-content">
+        <!-- Left Column: Copy & Actions -->
+        <div class="hero-left">
+          <div class="hero-kicker">
+            <span class="live-pulse-dot"></span>
+            TALENT READINESS · PHYSICALLY MAPPED
+          </div>
+
+          <h1 class="display-hero hero-headline" aria-label="Know your footing.">
+            <span class="reveal-line"><span class="reveal-inner">Know your</span></span>
+            <span class="reveal-line">
+              <span class="reveal-inner trail-underline">
+                footing.
+                <svg viewBox="0 0 240 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M 2 5 Q 60 1 120 4 T 238 4" />
+                </svg>
+              </span>
+            </span>
+          </h1>
+
+          <p class="hero-subhead">
+            Your skills are a physically lit 3D stone cairn floating in an alpine dusk. Cairn balances your verified strengths against hiring benchmarks from tier-1 engineering organizations.
+          </p>
+
+          <div class="hero-actions">
+            <a href="app.html" class="btn btn-primary btn-liquid" id="hero-cta-btn">
+              <span class="liquid-blob"></span>
+              <span class="btn-text">Open Cairn &rarr;</span>
+            </a>
+            <button type="button" class="btn btn-secondary soft-ui" id="btn-watch-build">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                <path d="M3 3v5h5" />
+              </svg>
+              <span>Restack Stones</span>
+            </button>
+          </div>
+
+          <!-- Hero Soft-UI Segmented Switchers (Candidate & Company) -->
+          <div class="hero-switcher-box glass-panel">
+            <div class="switcher-group">
+              <span class="switcher-label">CANDIDATE</span>
+              <div class="segmented-control soft-ui" id="candidate-switcher" role="tablist" aria-label="Select sample candidate">
+                <button type="button" class="segmented-btn active" data-candidate="rohan_verma" role="tab" aria-selected="true">Rohan</button>
+                <button type="button" class="segmented-btn" data-candidate="ananya_rao" role="tab" aria-selected="false">Ananya</button>
+                <button type="button" class="segmented-btn" data-candidate="karthik_subramaniam" role="tab" aria-selected="false">Karthik</button>
+                <button type="button" class="segmented-btn" data-candidate="priya_menon" role="tab" aria-selected="false">Priya</button>
+              </div>
+            </div>
+
+            <div class="switcher-group">
+              <span class="switcher-label">TARGET BENCHMARK</span>
+              <div class="segmented-control soft-ui" id="company-switcher" role="tablist" aria-label="Select benchmark company">
+                <button type="button" class="segmented-btn active" data-company-id="4" role="tab" aria-selected="true">Google</button>
+                <button type="button" class="segmented-btn" data-company-id="78" role="tab" aria-selected="false">Microsoft</button>
+                <button type="button" class="segmented-btn" data-company-id="24" role="tab" aria-selected="false">Oracle FSS</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Column: Interactive 3D Stage Space & Glass Readout Card -->
+        <div class="hero-right">
+          <div class="cairn-stage-placeholder" id="hero-cairn-stage">
+            <!-- 3D Canvas interacts here, camera positioned over right half -->
+          </div>
+
+          <!-- Floating Dusk Glass Readout Card (Parallaxes with mouse depth) -->
+          <div class="cairn-readout-card glass-card" id="hero-readout-card" aria-live="polite">
+            <div class="readout-header">
+              <span class="readout-candidate" id="readout-candidate-name">Rohan Verma · Google</span>
+              <span class="readout-badge"><span class="live-pulse-dot"></span>Live /talent-check</span>
+            </div>
+
+            <div class="readout-metrics">
+              <div>
+                <span class="readout-score" id="readout-score-val">63</span>
+                <span class="readout-score-denom"> / 100</span>
+              </div>
+              <span class="readout-verdict" id="readout-verdict-val">Within reach</span>
+            </div>
+
+            <div class="readout-stone-tip" id="readout-stone-tip">
+              Hover a stone to inspect thickness &amp; gaps
+            </div>
+
+            <div class="readout-cycle-note">
+              <span id="readout-role">Software Engineer</span>
+              <span>Interactive 3D · Drag to orbit</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         2. THE CLIMB (Scroll-Driven 4 Chapters with Flythrough Camera)
+         ==================================================================== -->
+    <section class="climb-section" id="climb">
+      <div class="climb-sticky-viewport">
+        <div class="climb-grid">
+          <!-- Left Column: Story progression in Glass Cards -->
+          <div class="climb-left">
+            <div class="climb-progress-trail" title="Cairn Chapter trail">
+              <div class="cairn-dot active" data-camp="0" role="button" aria-label="Chapter 1: Read the job"></div>
+              <div class="cairn-dot" data-camp="1" role="button" aria-label="Chapter 2: Read the resume"></div>
+              <div class="cairn-dot" data-camp="2" role="button" aria-label="Chapter 3: See the gap"></div>
+              <div class="cairn-dot" data-camp="3" role="button" aria-label="Chapter 4: Place the next stone"></div>
+            </div>
+
+            <div class="climb-camp-content glass-card">
+              <div class="climb-camp-tag" id="climb-camp-tag">CHAPTER 1 / 4</div>
+              <h2 class="display-title climb-camp-title" id="climb-camp-title">Read the job.</h2>
+              <p class="climb-camp-body" id="climb-camp-body">
+                Cairn extracts the company's verified hiring benchmarks. A translucent blueprint stone cairn appears in the aurora, establishing the target mass required across 12 competencies.
+              </p>
+              <div class="climb-callout" id="climb-camp-callout">
+                Translucent ember shells show verified company benchmarks.
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column: Perspective Focus Area -->
+          <div class="climb-right">
+            <div class="climb-interactive-hint">
+              <span>Scroll to navigate chapters · 3D Camera orbits the mountain</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Scroll track height driving GSAP ScrollTrigger phases -->
+      <div class="climb-scroll-track"></div>
+    </section>
+
+    <!-- ====================================================================
+         3. BENTO GRID (Inflated Clay Tiles + Live Mini-Demos)
+         ==================================================================== -->
+    <section class="bento-section" id="bento">
+      <div class="bento-header">
+        <div class="section-kicker">CORE CAPABILITIES</div>
+        <h2 class="display-title section-title">Tactile Precision. Zero Guesswork.</h2>
+        <p class="body-lead">
+          Explore the interactive instruments built into Cairn. Every stone responds to real-time adjustments.
+        </p>
+      </div>
+
+      <div class="bento-grid">
+        <!-- Tile 1: What-if Simulator Mini Demo -->
+        <div class="bento-tile bento-tile-1 clay-tile" data-tint="OOD">
+          <span class="bento-tile-tag">REAL-TIME SIMULATOR</span>
+          <h3 class="bento-tile-title">What-If Stone Sizer</h3>
+          <p class="bento-tile-desc">
+            Drag competency sliders to simulate building skills. Watch the score recalculate and the stones physically expand.
+          </p>
+          <div class="mini-simulator-demo">
+            <div class="mini-slider-row">
+              <span class="mini-slider-label">Networking</span>
+              <div class="mini-slider-track">
+                <div class="mini-slider-fill" id="mini-slider-netw-fill" style="width: 55%;"></div>
+                <div class="mini-slider-thumb" id="mini-slider-netw-thumb" style="left: 55%;"></div>
+              </div>
+              <span class="mono" id="mini-slider-netw-val" style="font-size: 13px; width: 32px;">5/9</span>
+            </div>
+            <div class="mini-slider-row">
+              <span class="mini-slider-label">Aptitude</span>
+              <div class="mini-slider-track">
+                <div class="mini-slider-fill" id="mini-slider-apti-fill" style="width: 70%;"></div>
+                <div class="mini-slider-thumb" id="mini-slider-apti-thumb" style="left: 70%;"></div>
+              </div>
+              <span class="mono" id="mini-slider-apti-val" style="font-size: 13px; width: 32px;">7/9</span>
+            </div>
+            <div class="mini-sim-result glass-panel" style="margin-top: 14px; padding: 10px 14px; font-size: 13px; display: flex; justify-content: space-between;">
+              <span>Simulated Score:</span>
+              <strong style="color: var(--c-aurora-teal);" id="mini-sim-score-preview">+14 pts &rarr; 77 / 100</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tile 2: Next Best Stones (Clay Chips) -->
+        <div class="bento-tile bento-tile-2 clay-tile" data-tint="DSA">
+          <span class="bento-tile-tag">RECOMMENDED PATH</span>
+          <h3 class="bento-tile-title">Next Best Stones</h3>
+          <p class="bento-tile-desc">
+            Cairn finds the highest return-on-effort improvements based on quadratic difficulty weighting.
+          </p>
+          <div class="clay-chips-container" style="display: flex; flex-direction: column; gap: 10px;">
+            <div class="clay-chip clay-chip-netw" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; border-radius: 14px; background: rgba(107, 255, 158, 0.12); border: 1px solid rgba(107, 255, 158, 0.25);">
+              <span><strong>NETW</strong> · Network Sockets</span>
+              <span class="mono" style="color: #6BFF9E; font-weight: 600;">+8 pts</span>
+            </div>
+            <div class="clay-chip clay-chip-apti" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; border-radius: 14px; background: rgba(143, 180, 255, 0.12); border: 1px solid rgba(143, 180, 255, 0.25);">
+              <span><strong>APTI</strong> · Quantitative Estimation</span>
+              <span class="mono" style="color: #8FB4FF; font-weight: 600;">+6 pts</span>
+            </div>
+            <div class="clay-chip clay-chip-dsa" style="display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; border-radius: 14px; background: rgba(155, 197, 61, 0.12); border: 1px solid rgba(155, 197, 61, 0.25);">
+              <span><strong>DSA</strong> · Graph Traversal</span>
+              <span class="mono" style="color: #9BC53D; font-weight: 600;">+4 pts</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tile 3: Fit Across Companies -->
+        <div class="bento-tile bento-tile-3 clay-tile" data-tint="AI">
+          <span class="bento-tile-tag">CROSS-COMPANY CALIBRATION</span>
+          <h3 class="bento-tile-title">Multi-Firm Benchmarks</h3>
+          <p class="bento-tile-desc">
+            See how your current stone stack maps against multiple engineering companies instantly.
+          </p>
+          <div class="bento-fit-bars">
+            <div class="bento-fit-bar">
+              <div class="bento-fit-info">
+                <span>Google LLC</span>
+                <strong class="mono">63%</strong>
+              </div>
+              <div class="bento-fit-track">
+                <div class="bento-fit-fill" style="width: 63%; background: linear-gradient(90deg, #2EE6C5, #9BFF8A);"></div>
+              </div>
+            </div>
+            <div class="bento-fit-bar">
+              <div class="bento-fit-info">
+                <span>Microsoft Corporation</span>
+                <strong class="mono">58%</strong>
+              </div>
+              <div class="bento-fit-track">
+                <div class="bento-fit-fill" style="width: 58%; background: linear-gradient(90deg, #FFC46B, #FF7A3D);"></div>
+              </div>
+            </div>
+            <div class="bento-fit-bar">
+              <div class="bento-fit-info">
+                <span>Oracle FSS</span>
+                <strong class="mono">81%</strong>
+              </div>
+              <div class="bento-fit-track">
+                <div class="bento-fit-fill" style="width: 81%; background: linear-gradient(90deg, #9BFF8A, #2EE6C5);"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tile 4: Candidate Heat-map Shimmer -->
+        <div class="bento-tile bento-tile-4 clay-tile" data-tint="SQL">
+          <span class="bento-tile-tag">HEAD-TO-HEAD MATRIX</span>
+          <h3 class="bento-tile-title">Compare Candidates</h3>
+          <p class="bento-tile-desc">
+            Shimmering 12-vector comparison matrix displaying clear strengths and foundations.
+          </p>
+          <div class="mini-heatmap-grid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px;">
+            <div style="background: rgba(46, 230, 197, 0.4); height: 26px; border-radius: 6px;" title="Rohan - SWE 9/9"></div>
+            <div style="background: rgba(46, 230, 197, 0.3); height: 26px; border-radius: 6px;" title="Ananya - DSA 9/9"></div>
+            <div style="background: rgba(255, 122, 61, 0.2); height: 26px; border-radius: 6px;" title="Karthik - SQL 9/9"></div>
+            <div style="background: rgba(46, 230, 197, 0.35); height: 26px; border-radius: 6px;" title="Priya - OS 5/5"></div>
+            <div style="background: rgba(46, 230, 197, 0.25); height: 26px; border-radius: 6px;"></div>
+            <div style="background: rgba(255, 122, 61, 0.35); height: 26px; border-radius: 6px;"></div>
+            <div style="background: rgba(46, 230, 197, 0.4); height: 26px; border-radius: 6px;"></div>
+            <div style="background: rgba(46, 230, 197, 0.2); height: 26px; border-radius: 6px;"></div>
+            <div style="background: rgba(255, 122, 61, 0.15); height: 26px; border-radius: 6px;"></div>
+            <div style="background: rgba(46, 230, 197, 0.35); height: 26px; border-radius: 6px;"></div>
+            <div style="background: rgba(46, 230, 197, 0.15); height: 26px; border-radius: 6px;"></div>
+            <div style="background: rgba(46, 230, 197, 0.4); height: 26px; border-radius: 6px;"></div>
+          </div>
+        </div>
+
+        <!-- Tile 5: Printable Dossier Report -->
+        <div class="bento-tile bento-tile-5 clay-tile" data-tint="SWE">
+          <span class="bento-tile-tag">OFFLINE AUDIT</span>
+          <h3 class="bento-tile-title">Printable Dossier</h3>
+          <p class="bento-tile-desc">
+            Clean PDF-ready audit report with complete skill breakdown and verified evidence snippets.
+          </p>
+          <a href="app.html#/report" class="btn btn-secondary soft-ui" style="width: 100%; justify-content: center; margin-top: 8px;">
+            <span>Generate Dossier &rarr;</span>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         4. WAYPOINT PORTALS (Horizontal Rail of 12 Clay Cards)
+         ==================================================================== -->
+    <section class="waypoint-rail-section" id="waypoints">
+      <div class="waypoint-rail-header">
+        <div class="section-kicker">12 WAYPOINTS</div>
+        <h2 class="display-title section-title">The Twelve Waypoints</h2>
+        <p class="body-lead" style="max-width: 680px;">
+          Every engineering cairn is stacked from twelve bedrock disciplines. Drag across the rail to inspect the interactive waypoints.
+        </p>
+      </div>
+
+      <div class="waypoint-rail" id="waypoint-rail" aria-label="12 Waypoint interactive cards carousel">
+        <!-- 1. OS -->
+        <a href="app.html#/skill/OS" class="waypoint-portal-card clay-card" data-tint="OS">
+          <div class="portal-card-top">
+            <span class="portal-card-num" style="color: #D98B6A;">01 · OS</span>
+            <span class="portal-card-tier">Bedrock</span>
+          </div>
+          <div class="portal-card-title">The Bedrock</div>
+          <div class="portal-card-theme">Kernel, virtual memory, threads &amp; scheduling</div>
+          <div class="portal-card-preview">
+            <canvas class="portal-mini-canvas" data-code="OS"></canvas>
+          </div>
+          <span class="btn-portal-explore">Enter Waypoint &rarr;</span>
+        </a>
+
+        <!-- 2. NETW -->
+        <a href="app.html#/skill/NETW" class="waypoint-portal-card clay-card" data-tint="NETW">
+          <div class="portal-card-top">
+            <span class="portal-card-num" style="color: #6BFF9E;">02 · NETW</span>
+            <span class="portal-card-tier">Foundation</span>
+          </div>
+          <div class="portal-card-title">The Signal</div>
+          <div class="portal-card-theme">TCP/IP stacks, DNS, HTTP/3, sockets &amp; latency</div>
+          <div class="portal-card-preview">
+            <canvas class="portal-mini-canvas" data-code="NETW"></canvas>
+          </div>
+          <span class="btn-portal-explore">Enter Waypoint &rarr;</span>
+        </a>
+
+        <!-- 3. COD -->
+        <a href="app.html#/skill/COD" class="waypoint-portal-card clay-card" data-tint="COD">
+          <div class="portal-card-top">
+            <span class="portal-card-num" style="color: #FF9A3D;">03 · COD</span>
+            <span class="portal-card-tier">Core</span>
+          </div>
+          <div class="portal-card-title">The Chisel</div>
+          <div class="portal-card-theme">Idiomatic syntax, functional mastery &amp; flow</div>
+          <div class="portal-card-preview">
+            <canvas class="portal-mini-canvas" data-code="COD"></canvas>
+          </div>
+          <span class="btn-portal-explore">Enter Waypoint &rarr;</span>
+        </a>
+
+        <!-- 4. DSA -->
+        <a href="app.html#/skill/DSA" class="waypoint-portal-card clay-card" data-tint="DSA">
+          <div class="portal-card-top">
+            <span class="portal-card-num" style="color: #9BC53D;">04 · DSA</span>
+            <span class="portal-card-tier">Core</span>
+          </div>
+          <div class="portal-card-title">The Traverse</div>
+          <div class="portal-card-theme">Algorithmic complexity, graphs, DP &amp; trees</div>
+          <div class="portal-card-preview">
+            <canvas class="portal-mini-canvas" data-code="DSA"></canvas>
+          </div>
+          <span class="btn-portal-explore">Enter Waypoint &rarr;</span>
+        </a>
+
+        <!-- 5. OOD -->
+        <a href="app.html#/skill/OOD" class="waypoint-portal-card clay-card" data-tint="OOD">
+          <div class="portal-card-top">
+            <span class="portal-card-num" style="color: #5BC8E8;">05 · OOD</span>
+            <span class="portal-card-tier">Design</span>
+          </div>
+          <div class="portal-card-title">The Blueprint</div>
+          <div class="portal-card-theme">SOLID principles, patterns &amp; abstractions</div>
+          <div class="portal-card-preview">
+            <canvas class="portal-mini-canvas" data-code="OOD"></canvas>
+          </div>
+          <span class="btn-portal-explore">Enter Waypoint &rarr;</span>
+        </a>
+
+        <!-- 6. SQL -->
+        <a href="app.html#/skill/SQL" class="waypoint-portal-card clay-card" data-tint="SQL">
+          <div class="portal-card-top">
+            <span class="portal-card-num" style="color: #E5646B;">06 · SQL</span>
+            <span class="portal-card-tier">Data</span>
+          </div>
+          <div class="portal-card-title">The Ledger</div>
+          <div class="portal-card-theme">ACID, indexing, query execution &amp; schemas</div>
+          <div class="portal-card-preview">
+            <canvas class="portal-mini-canvas" data-code="SQL"></canvas>
+          </div>
+          <span class="btn-portal-explore">Enter Waypoint &rarr;</span>
+        </a>
+
+        <!-- 7. SWE -->
+        <a href="app.html#/skill/SWE" class="waypoint-portal-card clay-card" data-tint="SWE">
+          <div class="portal-card-top">
+            <span class="portal-card-num" style="color: #FFD84A;">07 · SWE</span>
+            <span class="portal-card-tier">Practice</span>
+          </div>
+          <div class="portal-card-title">The Craft</div>
+          <div class="portal-card-theme">Testing rigor, CI/CD pipelines &amp; refactoring</div>
+          <div class="portal-card-preview">
+            <canvas class="portal-mini-canvas" data-code="SWE"></canvas>
+          </div>
+          <span class="btn-portal-explore">Enter Waypoint &rarr;</span>
+        </a>
+
+        <!-- 8. CLOUD -->
+        <a href="app.html#/skill/CLOUD" class="waypoint-portal-card clay-card" data-tint="CLOUD">
+          <div class="portal-card-top">
+            <span class="portal-card-num" style="color: #FFB59A;">08 · CLOUD</span>
+            <span class="portal-card-tier">Platform</span>
+          </div>
+          <div class="portal-card-title">The Horizon</div>
+          <div class="portal-card-theme">Containers, orchestration &amp; serverless scale</div>
+          <div class="portal-card-preview">
+            <canvas class="portal-mini-canvas" data-code="CLOUD"></canvas>
+          </div>
+          <span class="btn-portal-explore">Enter Waypoint &rarr;</span>
+        </a>
+
+        <!-- 9. SYSD -->
+        <a href="app.html#/skill/SYSD" class="waypoint-portal-card clay-card" data-tint="SYSD">
+          <div class="portal-card-top">
+            <span class="portal-card-num" style="color: #BFD3E6;">09 · SYSD</span>
+            <span class="portal-card-tier">Architecture</span>
+          </div>
+          <div class="portal-card-title">The Citadel</div>
+          <div class="portal-card-theme">Distributed consensus, caching tiers &amp; pub/sub</div>
+          <div class="portal-card-preview">
+            <canvas class="portal-mini-canvas" data-code="SYSD"></canvas>
+          </div>
+          <span class="btn-portal-explore">Enter Waypoint &rarr;</span>
+        </a>
+
+        <!-- 10. AI -->
+        <a href="app.html#/skill/AI" class="waypoint-portal-card clay-card" data-tint="AI">
+          <div class="portal-card-top">
+            <span class="portal-card-num" style="color: #4FE3C1;">10 · AI</span>
+            <span class="portal-card-tier">Intelligence</span>
+          </div>
+          <div class="portal-card-title">The Oracle</div>
+          <div class="portal-card-theme">Statistical models, transformers &amp; evaluation</div>
+          <div class="portal-card-preview">
+            <canvas class="portal-mini-canvas" data-code="AI"></canvas>
+          </div>
+          <span class="btn-portal-explore">Enter Waypoint &rarr;</span>
+        </a>
+
+        <!-- 11. APTI -->
+        <a href="app.html#/skill/APTI" class="waypoint-portal-card clay-card" data-tint="APTI">
+          <div class="portal-card-top">
+            <span class="portal-card-num" style="color: #8FB4FF;">11 · APTI</span>
+            <span class="portal-card-tier">Reasoning</span>
+          </div>
+          <div class="portal-card-title">The Compass</div>
+          <div class="portal-card-theme">Probabilistic intuition &amp; Fermi estimation</div>
+          <div class="portal-card-preview">
+            <canvas class="portal-mini-canvas" data-code="APTI"></canvas>
+          </div>
+          <span class="btn-portal-explore">Enter Waypoint &rarr;</span>
+        </a>
+
+        <!-- 12. COMM -->
+        <a href="app.html#/skill/COMM" class="waypoint-portal-card clay-card" data-tint="COMM">
+          <div class="portal-card-top">
+            <span class="portal-card-num" style="color: #F2C166;">12 · COMM</span>
+            <span class="portal-card-tier">Summit</span>
+          </div>
+          <div class="portal-card-title">The Summit Light</div>
+          <div class="portal-card-theme">Clarity of thought, stakeholder alignment &amp; empathy</div>
+          <div class="portal-card-preview">
+            <canvas class="portal-mini-canvas" data-code="COMM"></canvas>
+          </div>
+          <span class="btn-portal-explore">Enter Waypoint &rarr;</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         5. METHOD AND HONEST LIMITS (Glass Panel + Soft-UI Tabs)
+         ==================================================================== -->
+    <section class="method-section" id="method">
+      <div class="section-header">
+        <div class="section-kicker">FOUNDATIONS &amp; BOUNDARIES</div>
+        <h2 class="display-title section-title">Method &amp; Honest Limits</h2>
+        <p class="body-lead" style="max-width: 680px;">
+          Cairn is an engineering instrument for skill calibration, not an opaque screening algorithm. Here is our exact operational contract.
+        </p>
+      </div>
+
+      <div class="glass-panel method-panel">
+        <div class="method-grid">
+          <!-- Column 1: What Cairn Measures -->
+          <div class="method-col">
+            <h3 class="method-col-title positive">
+              <span class="marker"></span>
+              <span>What Cairn Measures</span>
+            </h3>
+            <ul class="method-points">
+              <li class="method-point-item">
+                <strong class="method-point-heading">12 Competency Baselines</strong>
+                <span class="method-point-text">Every candidate is calibrated across 12 discrete engineering vectors rather than collapsed into an unhelpful aggregate score.</span>
+              </li>
+              <li class="method-point-item">
+                <strong class="method-point-heading">113 Corporate Hiring Benchmarks</strong>
+                <span class="method-point-text">Target slot dimensions reflect verified empirical requirements from tier-1 engineering organizations.</span>
+              </li>
+              <li class="method-point-item">
+                <strong class="method-point-heading">Evidence-Anchored Scoring</strong>
+                <span class="method-point-text">Mass is awarded only when skills are validated by project implementations, production internships, or academic accomplishments.</span>
+              </li>
+              <li class="method-point-item">
+                <strong class="method-point-heading">Asymmetric Gravity</strong>
+                <span class="method-point-text">Surplus in one skill does not excuse missing foundations. A cairn with no bedrock cannot support a heavier summit.</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Column 2: Honest Limits -->
+          <div class="method-col">
+            <h3 class="method-col-title limits">
+              <span class="marker"></span>
+              <span>What Cairn Does Not Do</span>
+            </h3>
+            <ul class="method-points">
+              <li class="method-point-item">
+                <strong class="method-point-heading">Not an Automated Hiring Gate</strong>
+                <span class="method-point-text">Cairn is a diagnostic roadmap for engineers to understand their standing, never an automated rejection filter for hiring teams.</span>
+              </li>
+              <li class="method-point-item">
+                <strong class="method-point-heading">Estimated from Text Evidence</strong>
+                <span class="method-point-text">Skill levels reflect the fidelity of written resumes and project descriptions. Omitted achievements cannot be credited by the parser.</span>
+              </li>
+              <li class="method-point-item">
+                <strong class="method-point-heading">Static Snapshot of Trajectory</strong>
+                <span class="method-point-text">The score measures your current footing, not your capacity to learn or velocity in the first ninety days on the job.</span>
+              </li>
+              <li class="method-point-item">
+                <strong class="method-point-heading">Sample Data Flagged</strong>
+                <span class="method-point-text">Demonstration candidates and synthetic test records are explicitly tagged as sample data across the entire interface.</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         6. FAQ ACCORDION (Soft-UI Controls with Smooth Height Animation)
+         ==================================================================== -->
+    <section class="faq-section" id="faq">
+      <div class="section-header" style="text-align: center;">
+        <div class="section-kicker">QUESTIONS &amp; ANSWERS</div>
+        <h2 class="display-title section-title">Frequently Answered</h2>
+      </div>
+
+      <div class="faq-list">
+        <!-- Q1 -->
+        <div class="faq-item soft-ui">
+          <button type="button" class="faq-question">
+            <span>How does Cairn determine the 12 competency benchmarks?</span>
+            <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </button>
+          <div class="faq-answer-wrapper">
+            <div class="faq-answer">
+              Each benchmark represents the verified minimum threshold expected by tier-1 engineering companies. We mapped 113 corporate evaluations to 12 normalized skillsets (OS, Networking, Programming, DSA, OOD, SQL, Software Engineering, Cloud, System Design, AI/ML, Quantitative Aptitude, and Communication).
+            </div>
+          </div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="faq-item soft-ui">
+          <button type="button" class="faq-question">
+            <span>What does a translucent ember shell represent on a 3D stone?</span>
+            <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </button>
+          <div class="faq-answer-wrapper">
+            <div class="faq-answer">
+              The translucent ember shell represents the target mass expected by the company. The solid mineral rock inside is your demonstrated competence. Where your stone is smaller than the target slot, the glowing amber wireframe boundary highlights the physical gap that needs to be filled.
+            </div>
+          </div>
+        </div>
+
+        <!-- Q3 -->
+        <div class="faq-item soft-ui">
+          <button type="button" class="faq-question">
+            <span>What happens when a candidate exceeds the target level?</span>
+            <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </button>
+          <div class="faq-answer-wrapper">
+            <div class="faq-answer">
+              When candidate level equals or exceeds the company requirement, the stone fills the slot completely and is crowned with a lichen-green emissive rim. However, surplus mass in one stone cannot physically offset a deficit in the bedrock stones beneath it.
+            </div>
+          </div>
+        </div>
+
+        <!-- Q4 -->
+        <div class="faq-item soft-ui">
+          <button type="button" class="faq-question">
+            <span>How is the overall readiness score computed?</span>
+            <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </button>
+          <div class="faq-answer-wrapper">
+            <div class="faq-answer">
+              The readiness score is a weighted quadratic ratio: each competency is weighted by the square of its target difficulty level. Harder skill areas demand higher fidelity, and zero or minimal evidence in core foundations heavily discounts the total readiness percentage.
+            </div>
+          </div>
+        </div>
+
+        <!-- Q5 -->
+        <div class="faq-item soft-ui">
+          <button type="button" class="faq-question">
+            <span>Does Cairn store or transmit my uploaded documents?</span>
+            <svg class="faq-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+          </button>
+          <div class="faq-answer-wrapper">
+            <div class="faq-answer">
+              No. Documents are processed locally in memory on this backend server. Extractions are cached using a cryptographic SHA-256 digest of the file bytes to enable instant offline replays without external third-party cloud data persistence.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ====================================================================
+         7. CALL TO ACTION (Big Glass Band with Magnetic Hover Button)
+         ==================================================================== -->
+    <section class="cta-section">
+      <div class="glass-cta-band">
+        <div class="cta-liquid-blob" aria-hidden="true"></div>
+        <div class="cta-content">
+          <div class="section-kicker" style="color: var(--c-aurora-teal);">START YOUR FOOTING</div>
+          <h2 class="display-title" style="font-size: clamp(32px, 5vw, 48px); margin-bottom: 18px;">
+            Ready to climb the mountain?
+          </h2>
+          <p class="body-lead" style="margin-bottom: 36px; max-width: 520px; margin-inline: auto;">
+            Launch Cairn, upload your resume against any target job description, and watch your 3D stone stack assemble.
+          </p>
+          <a href="app.html" class="btn-magnetic" id="cta-magnetic-btn">
+            <span>Launch Cairn Now</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ====================================================================
+       8. FOOTER (Ridge Silhouette, Fireflies Canvas, SYSTEM Block)
+       ==================================================================== -->
+  <footer class="site-footer">
+    <div class="footer-silhouette">
+      <svg class="footer-silhouette-svg" viewBox="0 0 1200 120" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0,80 L200,45 L400,75 L600,28 L800,68 L1000,38 L1200,70 L1200,120 L0,120 Z"/>
+        <!-- Tiny Cairn on Ridge Summit (x=600, y=28) -->
+        <ellipse cx="600" cy="27" rx="9" ry="2.8" fill="#5E5A56" />
+        <ellipse cx="600.5" cy="22" rx="6.5" ry="2.2" fill="#8C877D" />
+        <ellipse cx="600" cy="18" rx="4.5" ry="1.6" fill="#B7AE9C" />
+        <line x1="600" y1="17" x2="600" y2="7" stroke="#A7A298" stroke-width="1"/>
+        <path d="M600 7 L608 9 L600 11 Z" fill="#FF7A3D" />
+      </svg>
+      <canvas id="footer-fireflies" class="footer-fireflies-canvas"></canvas>
+    </div>
+
+    <div class="footer-grid">
+      <!-- Left Column: Brand & Attribution -->
+      <div class="footer-left">
+        <div class="footer-brand">Cairn</div>
+        <p class="footer-tagline">Know your footing. Built for engineers navigating the mountain.</p>
+        <p class="footer-credit">Built for the RADIX Talent Match Hackathon · Dusk Glass Edition</p>
+      </div>
+
+      <!-- Right Column: System Runtime Metadata -->
+      <div class="footer-right">
+        <div class="system-block">
+          <div class="system-row">
+            <span>VERSION</span>
+            <span>v3.0.0 · Dusk Glass Edition</span>
+          </div>
+          <div class="system-row">
+            <span>ENGINE</span>
+            <span id="system-engine-val">Detecting active engine...</span>
+          </div>
+          <div class="system-row">
+            <span>DATA</span>
+            <span>113 Verified Benchmarks · 12 Competencies</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Application Scripts -->
+  <script src="brand.js?v=3.2"></script>
+  <script src="cairn.js?v=3.2"></script>
+  <script src="cairn3d.js?v=3.2"></script>
+  <script src="motion.js?v=3.2"></script>
+</body>
+</html>

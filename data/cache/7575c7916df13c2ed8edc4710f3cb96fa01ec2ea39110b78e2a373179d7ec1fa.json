@@ -1,0 +1,72 @@
+{
+  "company": "",
+  "role": "",
+  "skills": [
+    {
+      "skill_name": "C++",
+      "category_code": "COD",
+      "evidence": "Implemented a multithreaded job scheduler in C++ simulating OS-level process",
+      "confidence": "high"
+    },
+    {
+      "skill_name": "Python",
+      "category_code": "COD",
+      "evidence": "C++, Python, Java, Data Structures & Algorithms, Operating Systems",
+      "confidence": "medium"
+    },
+    {
+      "skill_name": "Java",
+      "category_code": "COD",
+      "evidence": "Designed a parking-lot management system in Java using OOP design patterns",
+      "confidence": "high"
+    },
+    {
+      "skill_name": "Data Structures & Algorithms",
+      "category_code": "DSA",
+      "evidence": "Solved 350+ problems on competitive programming platforms; mentors juniors on DSA",
+      "confidence": "high"
+    },
+    {
+      "skill_name": "Operating Systems",
+      "category_code": "OS",
+      "evidence": "Implemented a multithreaded job scheduler in C++ simulating OS-level process",
+      "confidence": "high"
+    },
+    {
+      "skill_name": "Computer Networks",
+      "category_code": "NETW",
+      "evidence": "C++, Python, Java, Data Structures & Algorithms, Operating Systems, Computer Networks",
+      "confidence": "medium"
+    },
+    {
+      "skill_name": "Object-Oriented Design",
+      "category_code": "OOD",
+      "evidence": "Designed a parking-lot management system in Java using OOP design patterns",
+      "confidence": "high"
+    },
+    {
+      "skill_name": "Git",
+      "category_code": "SWE",
+      "evidence": "C++, Python, Java, Data Structures & Algorithms, Operating Systems, Computer Networks, Object-Oriented Design, Git, Linu",
+      "confidence": "medium"
+    },
+    {
+      "skill_name": "Linux",
+      "category_code": "OS",
+      "evidence": "C++, Python, Java, Data Structures & Algorithms, Operating Systems, Computer Networks, Object-Oriented Design, Git, Linu",
+      "confidence": "medium"
+    },
+    {
+      "skill_name": "System Design",
+      "category_code": "SYSD",
+      "evidence": "Built a distributed URL-shortening service with a Redis-backed cache",
+      "confidence": "high"
+    },
+    {
+      "skill_name": "Redis",
+      "category_code": "SQL",
+      "evidence": "Built a distributed URL-shortening service with a Redis-backed cache",
+      "confidence": "high"
+    }
+  ]
+}
