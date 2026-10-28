@@ -1,0 +1,22 @@
+[project]
+name = "cairn"
+version = "0.1.0"
+description = "Cairn — Talent Readiness & Skill Match"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.100.0",
+    "uvicorn>=0.20.0",
+    "python-multipart>=0.0.6",
+    "pypdf>=3.0.0",
+    "python-docx>=1.0.0",
+    "rapidfuzz>=3.0.0",
+    "python-dotenv>=1.0.0",
+    "google-genai>=0.1.0",
+    "openai>=1.0.0",
+    "openpyxl>=3.1.0",
+    "requests>=2.31.0"
+]
+
+[tool.vercel]
+entrypoint = "app.api:app"
