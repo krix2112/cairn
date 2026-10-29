@@ -10,8 +10,9 @@ from app import extract as X
 from app.config import CODES
 
 VALID_CODES = set(CODES)
-JD_FILES = sorted(glob.glob("data/jds/*.pdf"))
-RESUME_FILES = sorted(glob.glob("data/resumes/*.pdf"))
+JD_FILES = sorted(glob.glob("seed/jds/*.pdf")) or sorted(glob.glob("data/jds/*.pdf"))
+RESUME_FILES = sorted(glob.glob("seed/resumes/*.pdf")) or sorted(glob.glob("data/resumes/*.pdf"))
+
 
 def _run_suite(use_cache: bool = True):
     all_files = [(f, "jd") for f in JD_FILES] + [(f, "resume") for f in RESUME_FILES]

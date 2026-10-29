@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard — Cairn</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='7' y='3' width='10' height='4.5' rx='2.25' fill='%232563EB'/%3E%3Crect x='4' y='9.5' width='16' height='5' rx='2.5' fill='%230F172A'/%3E%3Crect x='2' y='16.5' width='20' height='5.5' rx='2.75' fill='%230F172A'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="fonts.css">
+  <style>
+    :root {
+      --bg: #F7F8FA;
+      --card-bg: #FFFFFF;
+      --border: #E4E7EC;
+      --border-dark: #D0D5DD;
+      --text: #0F172A;
+      --text-secondary: #475467;
+      --text-muted: #667085;
+      --accent: #2563EB;
+      --accent-hover: #1D4ED8;
+      --status-green: #067647;
+      --status-green-bg: #ECFDF3;
+      --status-green-border: #A6F4C5;
+      --status-amber: #B54708;
+      --status-amber-bg: #FEF0C7;
+      --status-amber-border: #FEDF89;
+      --status-red: #B42318;
+      --status-red-bg: #FEF3F2;
+      --status-red-border: #FECDCA;
+      --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      font-variant-numeric: tabular-nums;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top bar */
+    .header {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 20px;
+      color: var(--text);
+      letter-spacing: -0.02em;
+      text-decoration: none;
+    }
+
+    .nav-group {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .nav-link {
+      font-size: 15px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      text-decoration: none;
+      transition: color 150ms ease-in-out;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      color: var(--accent);
+    }
+
+    .user-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: #F2F4F7;
+      border-radius: 20px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .btn {
+      height: 40px;
+      padding: 0 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 6px;
+      border: 1px solid var(--border-dark);
+      background: #FFFFFF;
+      color: var(--text);
+      cursor: pointer;
+      text-decoration: none;
+      transition: background-color 150ms ease-in-out, border-color 150ms ease-in-out;
+    }
+
+    .btn:hover {
+      background: #F9FAFB;
+      border-color: #98A2B3;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #FFFFFF;
+      border-color: var(--accent);
+    }
+
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+    }
+
+    .btn-danger {
+      background: #FFFFFF;
+      color: var(--status-red);
+      border-color: var(--status-red-border);
+    }
+
+    .btn-danger:hover {
+      background: var(--status-red-bg);
+      border-color: var(--status-red);
+    }
+
+    .btn-sm {
+      height: 32px;
+      padding: 0 10px;
+      font-size: 13px;
+    }
+
+    /* Main Container */
+    .main-wrap {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 24px 64px 24px;
+      width: 100%;
+      flex: 1;
+    }
+
+    .page-head {
+      margin-bottom: 24px;
+    }
+
+    .page-title {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+
+    .page-sub {
+      font-size: 15px;
+      color: var(--text-secondary);
+    }
+
+    /* Tabs */
+    .tabs-bar {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      gap: 32px;
+      margin-bottom: 28px;
+    }
+
+    .tab-btn {
+      background: none;
+      border: none;
+      padding: 12px 0;
+      font-family: var(--font-sans);
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      position: relative;
+      transition: color 150ms ease-in-out;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+    }
+
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--accent);
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Cards & Grids */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04);
+      margin-bottom: 24px;
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      color: var(--text);
+    }
+
+    /* Tables */
+    .table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #FFFFFF;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    th {
+      background: #F9FAFB;
+      padding: 12px 16px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Chips */
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .chip-green {
+      background: var(--status-green-bg);
+      color: var(--status-green);
+      border: 1px solid var(--status-green-border);
+    }
+
+    .chip-amber {
+      background: var(--status-amber-bg);
+      color: var(--status-amber);
+      border: 1px solid var(--status-amber-border);
+    }
+
+    .chip-red {
+      background: var(--status-red-bg);
+      color: var(--status-red);
+      border: 1px solid var(--status-red-border);
+    }
+
+    .chip-neutral {
+      background: #F2F4F7;
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+
+    /* Kanban Board */
+    .kanban-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    @media (max-width: 992px) {
+      .kanban-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .kanban-col {
+      background: #F9FAFB;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px;
+      min-height: 400px;
+    }
+
+    .kanban-col-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .kanban-col-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .kanban-card {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px;
+      margin-bottom: 10px;
+      box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+    }
+
+    .kanban-card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .kanban-card-sub {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+
+    .kanban-card-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      margin-top: 10px;
+      padding-top: 8px;
+      border-top: 1px solid #F2F4F7;
+    }
+
+    /* Form inputs */
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    input[type="text"], input[type="email"], select, textarea {
+      width: 100%;
+      height: 40px;
+      padding: 0 12px;
+      font-family: var(--font-sans);
+      font-size: 14px;
+      color: var(--text);
+      background: #FFFFFF;
+      border: 1px solid var(--border-dark);
+      border-radius: 6px;
+      outline: none;
+    }
+
+    textarea {
+      height: 80px;
+      padding: 8px 12px;
+      resize: vertical;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .empty-state {
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    /* Modal */
+    .modal-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.4);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-box {
+      background: #FFFFFF;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 480px;
+      padding: 24px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top bar -->
+  <header class="header">
+    <div class="header-inner">
+      <a href="index.html" class="brand">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="7" y="3" width="10" height="4.5" rx="2.25" fill="#2563EB"/>
+          <rect x="4" y="9.5" width="16" height="5" rx="2.5" fill="#0F172A"/>
+          <rect x="2" y="16.5" width="20" height="5.5" rx="2.75" fill="#0F172A"/>
+        </svg>
+        <span>Cairn</span>
+      </a>
+
+      <div class="nav-group">
+        <a href="analyze.html" class="nav-link">Analyze resume</a>
+        <a href="dashboard.html" class="nav-link active">Dashboard</a>
+        <div id="user-email-pill" class="user-pill">Loading...</div>
+        <button id="btn-signout" class="btn btn-sm">Sign out</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main-wrap">
+    <div class="page-head">
+      <h1 class="page-title">Dashboard</h1>
+      <p class="page-sub">Manage your uploaded resumes, analysis history, and track job applications.</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs-bar">
+      <button class="tab-btn active" data-tab="tab-resumes">My resumes</button>
+      <button class="tab-btn" data-tab="tab-history">History & Progress</button>
+      <button class="tab-btn" data-tab="tab-applications">Applications</button>
+      <button class="tab-btn" data-tab="tab-settings">Settings</button>
+    </div>
+
+    <!-- TAB 1: RESUMES -->
+    <div id="tab-resumes" class="tab-content active">
+      <div class="card">
+        <h2 class="card-title">Upload a new resume</h2>
+        <form id="upload-resume-form" style="display: flex; gap: 12px; align-items: flex-end; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 220px;">
+            <label for="resume-title">Resume label (optional)</label>
+            <input type="text" id="resume-title" placeholder="e.g. Backend Lead 2026">
+          </div>
+          <div style="flex: 1; min-width: 220px;">
+            <label for="resume-file">Resume file (PDF or DOCX, max 4MB)</label>
+            <input type="file" id="resume-file" accept=".pdf,.docx" required>
+          </div>
+          <button type="submit" id="btn-upload-resume" class="btn btn-primary" style="height: 40px;">Upload resume</button>
+        </form>
+      </div>
+
+      <div class="card" style="padding: 0;">
+        <div style="padding: 20px 24px 16px 24px; border-bottom: 1px solid var(--border);">
+          <h2 class="card-title" style="margin: 0;">Saved Resumes</h2>
+        </div>
+        <div class="table-wrap" style="border: none;">
+          <table>
+            <thead>
+              <tr>
+                <th>Title / Label</th>
+                <th>File name</th>
+                <th>Size</th>
+                <th>Uploaded</th>
+                <th>Status</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="resumes-table-body">
+              <tr><td colspan="6" class="empty-state">Loading resumes...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: HISTORY & PROGRESS -->
+    <div id="tab-history" class="tab-content">
+      <!-- Progress Summary -->
+      <div class="card">
+        <h2 class="card-title">Score Progression Trend</h2>
+        <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 16px;">
+          Progression across your recent resume evaluations.
+        </p>
+        <div id="progress-container" style="min-height: 80px;">
+          <div class="empty-state">No past evaluations recorded yet. Run an analysis with 'Save to history' enabled.</div>
+        </div>
+      </div>
+
+      <!-- History Table -->
+      <div class="card" style="padding: 0;">
+        <div style="padding: 20px 24px 16px 24px; border-bottom: 1px solid var(--border);">
+          <h2 class="card-title" style="margin: 0;">Analysis History</h2>
+        </div>
+        <div class="table-wrap" style="border: none;">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Company</th>
+                <th>Role</th>
+                <th>Match</th>
+                <th>Readiness</th>
+                <th>ATS</th>
+                <th style="text-align: right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="history-table-body">
+              <tr><td colspan="7" class="empty-state">Loading history...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: APPLICATIONS -->
+    <div id="tab-applications" class="tab-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <p style="font-size: 14px; color: var(--text-secondary); margin: 0;">
+          Track your job applications across each evaluation stage.
+        </p>
+        <button id="btn-add-app" class="btn btn-primary btn-sm">+ Add application</button>
+      </div>
+
+      <div class="kanban-grid">
+        <!-- Saved -->
+        <div class="kanban-col" data-stage="saved">
+          <div class="kanban-col-head">
+            <span class="kanban-col-title">Saved</span>
+            <span class="chip chip-neutral" id="cnt-saved">0</span>
+          </div>
+          <div id="list-saved"></div>
+        </div>
+
+        <!-- Applied -->
+        <div class="kanban-col" data-stage="applied">
+          <div class="kanban-col-head">
+            <span class="kanban-col-title">Applied</span>
+            <span class="chip chip-neutral" id="cnt-applied">0</span>
+          </div>
+          <div id="list-applied"></div>
+        </div>
+
+        <!-- Interview -->
+        <div class="kanban-col" data-stage="interview">
+          <div class="kanban-col-head">
+            <span class="kanban-col-title">Interview</span>
+            <span class="chip chip-amber" id="cnt-interview">0</span>
+          </div>
+          <div id="list-interview"></div>
+        </div>
+
+        <!-- Offer -->
+        <div class="kanban-col" data-stage="offer">
+          <div class="kanban-col-head">
+            <span class="kanban-col-title">Offer</span>
+            <span class="chip chip-green" id="cnt-offer">0</span>
+          </div>
+          <div id="list-offer"></div>
+        </div>
+
+        <!-- Rejected -->
+        <div class="kanban-col" data-stage="rejected">
+          <div class="kanban-col-head">
+            <span class="kanban-col-title">Rejected</span>
+            <span class="chip chip-red" id="cnt-rejected">0</span>
+          </div>
+          <div id="list-rejected"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: SETTINGS -->
+    <div id="tab-settings" class="tab-content">
+      <div class="card">
+        <h2 class="card-title">Account details</h2>
+        <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 12px;">
+          Email address: <strong id="settings-email" style="color: var(--text);"></strong>
+        </p>
+        <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 24px;">
+          Account ID: <code id="settings-uid" style="font-family: monospace; font-size: 12px; background: #F2F4F7; padding: 2px 6px; border-radius: 4px;"></code>
+        </p>
+
+        <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Export your data</h3>
+        <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 16px;">
+          Download a complete JSON export of all your resumes, saved analyses, application tracker entries, and 10-minute download links for all your resume files.
+        </p>
+        <button id="btn-export" class="btn">Export all my data</button>
+      </div>
+
+      <div class="card" style="border-color: var(--status-red-border); background: #FFFDFD;">
+        <h2 class="card-title" style="color: var(--status-red);">Delete account and data</h2>
+        <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 16px;">
+          Permanently delete your account and all associated resumes, analysis history, and application records. This action cannot be reversed.
+        </p>
+        <div style="max-width: 400px;">
+          <label for="confirm-delete-email">Type your account email to confirm:</label>
+          <input type="email" id="confirm-delete-email" placeholder="you@example.com" style="margin-bottom: 12px;">
+          <button id="btn-delete-account" class="btn btn-danger">Permanently delete my account</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Add Application Modal -->
+  <div id="app-modal" class="modal-backdrop">
+    <div class="modal-box">
+      <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 16px;">Track Job Application</h3>
+      <form id="add-app-form">
+        <div class="form-group">
+          <label for="app-company">Company name</label>
+          <input type="text" id="app-company" required placeholder="e.g. Google, Volvo Group">
+        </div>
+        <div class="form-group">
+          <label for="app-role">Job role / title</label>
+          <input type="text" id="app-role" required placeholder="e.g. Senior Software Engineer">
+        </div>
+        <div class="form-group">
+          <label for="app-status">Stage</label>
+          <select id="app-status">
+            <option value="saved">Saved</option>
+            <option value="applied">Applied</option>
+            <option value="interview">Interview</option>
+            <option value="offer">Offer</option>
+            <option value="rejected">Rejected</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="app-url">Job posting URL (optional)</label>
+          <input type="text" id="app-url" placeholder="https://...">
+        </div>
+        <div class="form-group">
+          <label for="app-notes">Notes (optional)</label>
+          <textarea id="app-notes" placeholder="Recruiter name, referral notes, interview dates..."></textarea>
+        </div>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px;">
+          <button type="button" id="btn-modal-cancel" class="btn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save application</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="vendor/supabase.min.js"></script>
+  <script>
+    let supabaseClient = null;
+    let currentUser = null;
+    let currentToken = null;
+
+    // Tabs navigation
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById(btn.dataset.tab).classList.add('active');
+      });
+    });
+
+    // Helper for API calls with Bearer token
+    async function apiFetch(url, options = {}) {
+      const headers = options.headers || {};
+      if (currentToken) {
+        headers['Authorization'] = `Bearer ${currentToken}`;
+      }
+      return fetch(url, { ...options, headers });
+    }
+
+    async function initAuth() {
+      try {
+        const resp = await fetch('/config');
+        const config = await resp.json();
+        if (config.supabase_url && config.supabase_publishable_key && window.supabase) {
+          supabaseClient = window.supabase.createClient(config.supabase_url, config.supabase_publishable_key);
+          const { data: { session } } = await supabaseClient.auth.getSession();
+          if (session) {
+            currentUser = session.user;
+            currentToken = session.access_token;
+            onAuthenticated();
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn('Auth check error:', err);
+      }
+
+      // Check URL token param for dev or redirect to login
+      const urlParams = new URLSearchParams(window.location.search);
+      const testToken = urlParams.get('token');
+      if (testToken) {
+        currentToken = testToken;
+        currentUser = { id: 'test-user', email: 'dev@example.com' };
+        onAuthenticated();
+      } else {
+        window.location.href = 'login.html?return=dashboard.html';
+      }
+    }
+
+    function onAuthenticated() {
+      document.getElementById('user-email-pill').textContent = currentUser.email;
+      document.getElementById('settings-email').textContent = currentUser.email;
+      document.getElementById('settings-uid').textContent = currentUser.id;
+
+      loadResumes();
+      loadHistory();
+      loadApplications();
+    }
+
+    document.getElementById('btn-signout').addEventListener('click', async () => {
+      if (supabaseClient) {
+        await supabaseClient.auth.signOut();
+      }
+      window.location.href = 'index.html';
+    });
+
+    // --- RESUMES ---
+    async function loadResumes() {
+      const tbody = document.getElementById('resumes-table-body');
+      try {
+        const resp = await apiFetch('/me/resumes');
+        if (!resp.ok) throw new Error('Failed to load resumes');
+        const list = await resp.json();
+        if (list.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No resumes uploaded yet. Upload your first resume above.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = list.map(r => `
+          <tr>
+            <td><strong>${escapeHtml(r.title)}</strong></td>
+            <td>${escapeHtml(r.file_name)}</td>
+            <td>${Math.round((r.file_size || 0) / 1024)} KB</td>
+            <td>${new Date(r.created_at).toLocaleDateString()}</td>
+            <td>${r.is_primary ? '<span class="chip chip-green">Primary</span>' : '<span class="chip chip-neutral">Secondary</span>'}</td>
+            <td style="text-align: right;">
+              ${!r.is_primary ? `<button onclick="setPrimary('${r.id}')" class="btn btn-sm" style="margin-right: 6px;">Make primary</button>` : ''}
+              <button onclick="downloadResume('${r.id}')" class="btn btn-sm" style="margin-right: 6px;">Download</button>
+              <button onclick="deleteResume('${r.id}')" class="btn btn-sm btn-danger">Delete</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="6" class="empty-state" style="color: var(--status-red);">${err.message}</td></tr>`;
+      }
+    }
+
+    document.getElementById('upload-resume-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fileInput = document.getElementById('resume-file');
+      const titleInput = document.getElementById('resume-title');
+      const submitBtn = document.getElementById('btn-upload-resume');
+
+      if (!fileInput.files.length) return;
+      const formData = new FormData();
+      formData.append('file', fileInput.files[0]);
+      if (titleInput.value.trim()) {
+        formData.append('title', titleInput.value.trim());
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Uploading...';
+
+      try {
+        const resp = await apiFetch('/me/resumes', {
+          method: 'POST',
+          body: formData
+        });
+        if (!resp.ok) {
+          const err = await resp.json();
+          alert(err.detail || 'Upload failed');
+        } else {
+          fileInput.value = '';
+          titleInput.value = '';
+          loadResumes();
+        }
+      } catch (err) {
+        alert('Network error uploading resume');
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Upload resume';
+      }
+    });
+
+    async function setPrimary(id) {
+      await apiFetch(`/me/resumes/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_primary: true })
+      });
+      loadResumes();
+    }
+
+    async function downloadResume(id) {
+      try {
+        const resp = await apiFetch(`/me/resumes/${id}/download`);
+        if (!resp.ok) throw new Error('Download failed');
+        const data = await resp.json();
+        if (data.url) {
+          window.open(data.url, '_blank');
+        }
+      } catch (err) {
+        alert(err.message);
+      }
+    }
+
+    async function deleteResume(id) {
+      if (!confirm('Are you sure you want to delete this resume?')) return;
+      await apiFetch(`/me/resumes/${id}`, { method: 'DELETE' });
+      loadResumes();
+    }
+
+    // --- HISTORY & PROGRESS ---
+    async function loadHistory() {
+      const tbody = document.getElementById('history-table-body');
+      try {
+        const [histResp, progResp] = await Promise.all([
+          apiFetch('/me/analyses'),
+          apiFetch('/me/progress')
+        ]);
+
+        if (histResp.ok) {
+          const analyses = await histResp.json();
+          if (analyses.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="empty-state">No saved evaluations yet.</td></tr>';
+          } else {
+            tbody.innerHTML = analyses.map(a => `
+              <tr>
+                <td>${new Date(a.created_at).toLocaleDateString()}</td>
+                <td><strong>${escapeHtml(a.jd_company || 'Unknown')}</strong></td>
+                <td>${escapeHtml(a.jd_title || 'Software Role')}</td>
+                <td><span class="chip chip-green">${a.match_score ?? '—'}%</span></td>
+                <td><span class="chip chip-green">${a.readiness_score ?? '—'}%</span></td>
+                <td><span class="chip chip-neutral">${a.ats_score ?? '—'}%</span></td>
+                <td style="text-align: right;">
+                  <a href="analyze.html?id=${a.id}" class="btn btn-sm btn-primary" style="margin-right: 6px;">Open report</a>
+                  <button onclick="deleteAnalysis('${a.id}')" class="btn btn-sm btn-danger">Delete</button>
+                </td>
+              </tr>
+            `).join('');
+          }
+        }
+
+        if (progResp.ok) {
+          const prog = await progResp.json();
+          renderProgress(prog);
+        }
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="7" class="empty-state" style="color: var(--status-red);">${err.message}</td></tr>`;
+      }
+    }
+
+    function renderProgress(prog) {
+      const box = document.getElementById('progress-container');
+      if (!prog || prog.length === 0) {
+        box.innerHTML = '<div class="empty-state">No evaluations recorded yet. Run an analysis to track your score progression over time.</div>';
+        return;
+      }
+
+      box.innerHTML = `
+        <div style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px;">
+          ${prog.map(p => `
+            <div style="flex: 1; min-width: 160px; background: #F9FAFB; border: 1px solid var(--border); border-radius: 6px; padding: 12px;">
+              <div style="font-size: 11px; color: var(--text-muted);">${new Date(p.created_at).toLocaleDateString()}</div>
+              <div style="font-weight: 600; font-size: 13px; color: var(--text); margin-bottom: 8px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHtml(p.company)}</div>
+              <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;">
+                <span>Match:</span>
+                <strong>${p.match_score}%</strong>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 12px;">
+                <span>Readiness:</span>
+                <strong style="color: var(--accent);">${p.readiness_score}%</strong>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    async function deleteAnalysis(id) {
+      if (!confirm('Are you sure you want to delete this analysis?')) return;
+      await apiFetch(`/me/analyses/${id}`, { method: 'DELETE' });
+      loadHistory();
+    }
+
+    // --- APPLICATIONS KANBAN ---
+    const stages = ['saved', 'applied', 'interview', 'offer', 'rejected'];
+
+    async function loadApplications() {
+      try {
+        const resp = await apiFetch('/me/applications');
+        if (!resp.ok) return;
+        const apps = await resp.json();
+
+        stages.forEach(st => {
+          const listEl = document.getElementById(`list-${st}`);
+          const cntEl = document.getElementById(`cnt-${st}`);
+          const items = apps.filter(a => a.status === st);
+          cntEl.textContent = items.length;
+
+          if (items.length === 0) {
+            listEl.innerHTML = '<div style="font-size: 12px; color: var(--text-muted); text-align: center; padding: 16px 0;">No items</div>';
+          } else {
+            listEl.innerHTML = items.map(a => `
+              <div class="kanban-card">
+                <div class="kanban-card-title">${escapeHtml(a.company)}</div>
+                <div class="kanban-card-sub">${escapeHtml(a.role)}</div>
+                ${a.notes ? `<div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 8px;">${escapeHtml(a.notes)}</div>` : ''}
+                <div class="kanban-card-actions">
+                  <select onchange="updateAppStage('${a.id}', this.value)" style="height: 28px; font-size: 12px; padding: 0 4px; border-radius: 4px;">
+                    ${stages.map(s => `<option value="${s}" ${s === a.status ? 'selected' : ''}>Move: ${s}</option>`).join('')}
+                  </select>
+                  <button onclick="deleteApp('${a.id}')" style="background: none; border: none; color: var(--status-red); cursor: pointer; font-size: 12px;">Delete</button>
+                </div>
+              </div>
+            `).join('');
+          }
+        });
+      } catch (err) {
+        console.warn('Failed to load applications:', err);
+      }
+    }
+
+    async function updateAppStage(appId, newStatus) {
+      await apiFetch(`/me/applications/${appId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      });
+      loadApplications();
+    }
+
+    async function deleteApp(appId) {
+      if (!confirm('Delete this tracked application?')) return;
+      await apiFetch(`/me/applications/${appId}`, { method: 'DELETE' });
+      loadApplications();
+    }
+
+    // Modal Add Application
+    const modal = document.getElementById('app-modal');
+    document.getElementById('btn-add-app').addEventListener('click', () => modal.style.display = 'flex');
+    document.getElementById('btn-modal-cancel').addEventListener('click', () => modal.style.display = 'none');
+
+    document.getElementById('add-app-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        company: document.getElementById('app-company').value.trim(),
+        role: document.getElementById('app-role').value.trim(),
+        status: document.getElementById('app-status').value,
+        job_url: document.getElementById('app-url').value.trim() || null,
+        notes: document.getElementById('app-notes').value.trim() || null
+      };
+
+      const resp = await apiFetch('/me/applications', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (resp.ok) {
+        modal.style.display = 'none';
+        document.getElementById('add-app-form').reset();
+        loadApplications();
+      } else {
+        alert('Failed to save application');
+      }
+    });
+
+    // --- SETTINGS (EXPORT & DELETE) ---
+    document.getElementById('btn-export').addEventListener('click', async () => {
+      const btn = document.getElementById('btn-export');
+      btn.disabled = true;
+      btn.textContent = 'Generating export...';
+      try {
+        const resp = await apiFetch('/me/export');
+        if (!resp.ok) throw new Error('Export failed');
+        const data = await resp.json();
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `cairn-data-export-${new Date().toISOString().slice(0, 10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      } catch (err) {
+        alert(err.message);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Export all my data';
+      }
+    });
+
+    document.getElementById('btn-delete-account').addEventListener('click', async () => {
+      const emailInput = document.getElementById('confirm-delete-email');
+      const email = emailInput.value.trim();
+      if (!email) {
+        alert('Please type your email to confirm deletion');
+        return;
+      }
+      if (!confirm('Final warning: This will permanently erase your account and all data. Proceed?')) return;
+
+      try {
+        const resp = await apiFetch('/me', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ confirm_email: email })
+        });
+        if (!resp.ok) {
+          const err = await resp.json();
+          alert(err.detail || 'Failed to delete account');
+          return;
+        }
+        alert('Your account and all associated data have been permanently deleted.');
+        if (supabaseClient) {
+          await supabaseClient.auth.signOut();
+        }
+        window.location.href = 'index.html';
+      } catch (err) {
+        alert('Network error deleting account');
+      }
+    });
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m]);
+    }
+
+    initAuth();
+  </script>
+</body>
+</html>
+

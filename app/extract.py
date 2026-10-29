@@ -10,6 +10,7 @@ from pydantic import BaseModel, Field, field_validator
 from pypdf import PdfReader
 
 from .config import CODES, LLM_PROVIDER, MODEL, SKILLSET_MAP
+from .store import get_store
 
 VALID_CODES = set(CODES)
 
@@ -467,8 +468,12 @@ def _get_cache_path(raw_bytes: bytes, kind: str, model: str) -> str:
 
 def is_cached(raw_bytes: bytes, kind: str) -> bool:
     model = os.getenv("RADIX_MODEL", MODEL)
-    cache_path = _get_cache_path(raw_bytes, kind, model)
-    return os.path.exists(cache_path)
+    h = hashlib.sha256(raw_bytes + kind.encode("utf-8") + model.encode("utf-8")).hexdigest()
+    bundled_path = os.path.join("data", "cache", f"{h}.json")
+    if os.path.exists(bundled_path):
+        return True
+    store, _ = get_store()
+    return store.get("extract", h) is not None
 
 
 def is_llm_configured() -> bool:
@@ -495,14 +500,24 @@ def extract(path_or_bytes, kind: str, name: str = "", use_cache: bool = True) ->
     text = read_text(path_or_bytes, name)
     provider = os.getenv("LLM_PROVIDER", LLM_PROVIDER).lower()
     model = os.getenv("RADIX_MODEL", MODEL)
-    cache_path = _get_cache_path(raw_bytes, kind, model)
+    
+    h = hashlib.sha256()
+    h.update(raw_bytes)
+    h.update(kind.encode("utf-8"))
+    h.update(model.encode("utf-8"))
+    cache_key = h.hexdigest()
 
     # 1. Check cache first if configured and caching is enabled
     has_key = is_llm_configured()
     if use_cache and not os.getenv("RADIX_NO_CACHE"):
-        if os.path.exists(cache_path):
+        # Bundled read-only seed/cache/ or data/cache/ first
+        bundled_path = os.path.join("seed", "cache", f"{cache_key}.json")
+        if not os.path.exists(bundled_path):
+            bundled_path = os.path.join("data", "cache", f"{cache_key}.json")
+        if os.path.exists(bundled_path):
+
             try:
-                with open(cache_path, "r", encoding="utf-8") as f:
+                with open(bundled_path, "r", encoding="utf-8") as f:
                     cached = json.load(f)
                 if cached.get("skills"):
                     return {
@@ -516,18 +531,28 @@ def extract(path_or_bytes, kind: str, name: str = "", use_cache: bool = True) ->
             except Exception:
                 pass
 
+        # Check store (Supabase or Local)
+        store, _ = get_store()
+        cached = store.get("extract", cache_key)
+        if cached and isinstance(cached, dict) and cached.get("skills"):
+            return {
+                "source_type": kind,
+                "source_file": name or str(path_or_bytes),
+                "company": cached.get("company", ""),
+                "role": cached.get("role", ""),
+                "skills": cached["skills"],
+                "_text": text if kind == "resume" else None,
+            }
+
     # 2. Try LLM if configured
     res = None
     if has_key:
         try:
             res = llm_extract(text, kind)
-            # Save valid extraction to cache
+            # Save valid extraction to store
             if use_cache and res and res.get("skills"):
-                try:
-                    with open(cache_path, "w", encoding="utf-8") as f:
-                        json.dump(res, f, indent=2)
-                except Exception as ce:
-                    print("Failed to write extraction cache:", ce)
+                store, _ = get_store()
+                store.set("extract", cache_key, res)
         except Exception as e:
             print(f"[EXTRACT ERROR] LLM failed for {name or str(path_or_bytes)}: {type(e).__name__}: {e}")
             if os.getenv("RADIX_STRICT_LLM"):

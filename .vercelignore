@@ -1,0 +1,11 @@
+seed/
+recordings/
+tests/
+scripts/
+docs/
+*.zip
+*.xlsx
+.env.local
+.pytest_cache/
+__pycache__/
+

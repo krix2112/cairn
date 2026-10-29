@@ -115,10 +115,19 @@ def parse_resume_meta(pdf_path: str) -> Dict[str, Any]:
 
 
 def get_samples_meta(use_cache: bool = True) -> Dict[str, Any]:
-    """Return parsed metadata for all sample JDs and resumes with in-memory caching."""
+    """Return parsed metadata for all sample JDs and resumes via data_source."""
     global _SAMPLES_META_CACHE
     if use_cache and _SAMPLES_META_CACHE is not None:
         return _SAMPLES_META_CACHE
+
+    try:
+        from . import data_source
+        data = data_source.get_samples_meta()
+        if use_cache:
+            _SAMPLES_META_CACHE = data
+        return data
+    except Exception:
+        pass
 
     jd_files = sorted(glob.glob(os.path.join(ROOT, "jds", "*.pdf")))
     resume_files = sorted(glob.glob(os.path.join(ROOT, "resumes", "*.pdf")))
@@ -135,3 +144,4 @@ def get_samples_meta(use_cache: bool = True) -> Dict[str, Any]:
         _SAMPLES_META_CACHE = data
 
     return data
+

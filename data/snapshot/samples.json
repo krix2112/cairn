@@ -1,0 +1,90 @@
+{
+  "jds": [
+    {
+      "name": "google_ds",
+      "company": "Google LLC",
+      "role": "Data Scientist",
+      "role_category": "Data Scientist",
+      "location": "Bengaluru",
+      "ctc": "\u20b928,00,000",
+      "ctc_short": "\u20b928L",
+      "company_id": 4
+    },
+    {
+      "name": "google_swe",
+      "company": "Google LLC",
+      "role": "Software Engineer (SWE)",
+      "role_category": "SDE  \u00b7  Product Engineering",
+      "location": "Bengaluru (Hybrid)",
+      "ctc": "\u20b932,00,000",
+      "ctc_short": "\u20b932L",
+      "company_id": 4
+    },
+    {
+      "name": "microsoft_da",
+      "company": "Microsoft Corporation",
+      "role": "Data Analyst",
+      "role_category": "Data Analyst",
+      "location": "Hyderabad",
+      "ctc": "\u20b918,00,000",
+      "ctc_short": "\u20b918L",
+      "company_id": 78
+    },
+    {
+      "name": "microsoft_swe",
+      "company": "Microsoft Corporation",
+      "role": "Software Engineer",
+      "role_category": "SDE",
+      "location": "Hyderabad",
+      "ctc": "\u20b928,00,000",
+      "ctc_short": "\u20b928L",
+      "company_id": 78
+    },
+    {
+      "name": "oracle_asa",
+      "company": "Oracle Financial Services Software Limited",
+      "role": "Application Support Analyst",
+      "role_category": "Support / Operations",
+      "location": "Bengaluru / Chennai",
+      "ctc": "\u20b94,50,000",
+      "ctc_short": "\u20b94.5L",
+      "company_id": 24
+    },
+    {
+      "name": "oracle_ase",
+      "company": "Oracle Financial Services Software Limited",
+      "role": "Associate Software Engineer",
+      "role_category": "SDE",
+      "location": "Bengaluru / Mumbai",
+      "ctc": "\u20b95,50,000",
+      "ctc_short": "\u20b95.5L",
+      "company_id": 24
+    }
+  ],
+  "resumes": [
+    {
+      "name": "ananya_rao",
+      "full_name": "Ananya Rao",
+      "headline": "Systems-leaning generalist \u2014 strong fit for SWE-heavy roles, weaker fit for data roles",
+      "email": "ananya_rao@demo.local"
+    },
+    {
+      "name": "karthik_subramaniam",
+      "full_name": "Karthik Subramaniam",
+      "headline": "Data-leaning analyst \u2014 strong fit for Data Scientist / Data Analyst roles, weaker fit for pure SWE roles",
+      "email": "karthik_subramaniam@demo.local"
+    },
+    {
+      "name": "priya_menon",
+      "full_name": "Priya Menon",
+      "headline": "Entry-level, support-oriented \u2014 best fit for the Oracle FSS roles, weaker fit for Google / Microsoft",
+      "email": "priya_menon@demo.local"
+    },
+    {
+      "name": "rohan_verma",
+      "full_name": "Rohan Verma",
+      "headline": "Strong all-rounder \u2014 competitive fit across nearly every role in this pack",
+      "email": "rohan_verma@demo.local"
+    }
+  ]
+}

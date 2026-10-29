@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "api/index.py": {
+      "maxDuration": 60
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/(analyze|health|config|companies|samples|samples/.*|socials/.*|provenance|roadmap|me|me/.*)",
+      "destination": "/api/index.py"
+    }
+  ]
+}

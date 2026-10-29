@@ -4,21 +4,26 @@ from dotenv import load_dotenv
 # Load environment variables at startup
 load_dotenv()
 
-# Verified: matched staging_company_skill_levels columns to skill_set_id across 113 companies (100%).
-SKILLSET_MAP = {
-    1: "COD",
-    2: "DSA",
-    3: "APTI",
-    4: "COMM",
-    5: "OOD",
-    6: "AI",
-    7: "SQL",
-    8: "SYSD",
-    9: "CLOUD",
-    10: "SWE",
-    11: "NETW",
-    12: "OS",
-}
+# Dynamic mapping from data_source with safe default fallback
+try:
+    from . import data_source
+    SKILLSET_MAP = data_source.get_skillset_map()
+except Exception:
+    SKILLSET_MAP = {
+        1: "COD",
+        2: "DSA",
+        3: "APTI",
+        4: "COMM",
+        5: "OOD",
+        6: "AI",
+        7: "SQL",
+        8: "SYSD",
+        9: "CLOUD",
+        10: "SWE",
+        11: "NETW",
+        12: "OS",
+    }
+
 COMPANIES = {4: "Google", 24: "Oracle FSS", 78: "Microsoft"}
 
 LLM_PROVIDER = os.getenv("LLM_PROVIDER", "gemini").lower()

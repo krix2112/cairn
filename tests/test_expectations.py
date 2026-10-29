@@ -12,15 +12,18 @@ from app.skill_match import match
 @pytest.fixture(scope="module")
 def env_setup():
     profs = {}
-    for f in sorted(glob.glob("data/resumes/*.pdf")):
+    resume_glob = sorted(glob.glob("seed/resumes/*.pdf")) or sorted(glob.glob("data/resumes/*.pdf"))
+    for f in resume_glob:
         r = X.extract(f, "resume", os.path.basename(f), use_cache=True)
         p = P.from_resume(r, email=os.path.basename(f)[:-4] + "@demo.com")
         profs[p["name"]] = p
 
+    jd_glob = sorted(glob.glob("seed/jds/*.pdf")) or sorted(glob.glob("data/jds/*.pdf"))
     jds = {
         os.path.basename(f)[:-4]: X.extract(f, "jd", os.path.basename(f), use_cache=True)
-        for f in sorted(glob.glob("data/jds/*.pdf"))
+        for f in jd_glob
     }
+
     return profs, jds
 
 

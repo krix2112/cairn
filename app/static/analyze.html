@@ -1,0 +1,2946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cairn — Technical Resume & Job Match Analysis</title>
+  <meta name="description" content="Detailed analysis of your resume match against a job description, ATS risk audit, GitHub code verification, and custom study roadmap.">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='7' y='3' width='10' height='4.5' rx='2.25' fill='%232563EB'/%3E%3Crect x='4' y='9.5' width='16' height='5' rx='2.5' fill='%230F172A'/%3E%3Crect x='2' y='16.5' width='20' height='5.5' rx='2.75' fill='%230F172A'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="fonts.css">
+  <style>
+    :root {
+      --bg: #F7F8FA;
+      --card-bg: #FFFFFF;
+      --border: #E4E7EC;
+      --border-dark: #D0D5DD;
+      --text: #0F172A;
+      --text-secondary: #475467;
+      --text-muted: #667085;
+      --accent: #2563EB;
+      --accent-hover: #1D4ED8;
+      --status-green: #067647;
+      --status-green-bg: #ECFDF3;
+      --status-green-border: #A6F4C5;
+      --status-amber: #B54708;
+      --status-amber-bg: #FEF0C7;
+      --status-amber-border: #FEDF89;
+      --status-red: #B42318;
+      --status-red-bg: #FEF3F2;
+      --status-red-border: #FECDCA;
+      --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      font-size: 16px;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      font-variant-numeric: tabular-nums;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    /* Top bar */
+    .header {
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        position: static;
+      }
+    }
+
+    .header-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 700;
+      font-size: 19px;
+      color: var(--text);
+      letter-spacing: -0.02em;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--status-green);
+    }
+
+    /* Layout */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 24px 64px 24px;
+    }
+
+    /* Buttons */
+    .btn {
+      height: 44px;
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 20px;
+      border-radius: 6px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all 150ms ease-in-out;
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+
+    .btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #FFFFFF;
+      border-color: var(--accent);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-secondary {
+      background: var(--card-bg);
+      color: var(--text);
+      border-color: var(--border-dark);
+    }
+
+    .btn-secondary:hover {
+      background: #F8FAFC;
+      border-color: var(--text);
+    }
+
+    .btn-text {
+      background: transparent;
+      border: none;
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      padding: 6px 8px;
+      border-radius: 4px;
+      transition: all 150ms ease-in-out;
+    }
+
+    .btn-text:hover {
+      text-decoration: underline;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+    }
+
+    /* Collapsed summary bar */
+    .collapsed-summary {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .collapsed-meta {
+      font-size: 14px;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .collapsed-meta strong {
+      color: var(--text-secondary);
+      font-weight: 400;
+      margin-right: 4px;
+    }
+
+    .collapsed-divider {
+      margin: 0 10px;
+      color: var(--border-dark);
+    }
+
+    /* Inputs Panel */
+    .inputs-panel {
+      margin-bottom: 32px;
+    }
+
+    .panel-header {
+      margin-bottom: 24px;
+    }
+
+    .panel-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.02em;
+      margin-bottom: 4px;
+    }
+
+    .panel-subtitle {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .inputs-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .form-label {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .form-label-hint {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text-secondary);
+    }
+
+    /* Dropzone */
+    .dropzone {
+      border: 1px dashed var(--border-dark);
+      background: var(--bg);
+      border-radius: 6px;
+      padding: 24px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 150ms ease-in-out;
+      min-height: 120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .dropzone:hover, .dropzone.dragover {
+      border-color: var(--accent);
+      background: #EFF6FF;
+    }
+
+    .dropzone-icon {
+      color: var(--text-muted);
+    }
+
+    .dropzone-text {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .dropzone-text strong {
+      color: var(--accent);
+    }
+
+    .file-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    /* Tabs inside Job description */
+    .tab-pills {
+      display: flex;
+      gap: 4px;
+      background: var(--bg);
+      padding: 3px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      width: fit-content;
+      margin-bottom: 8px;
+    }
+
+    .tab-pill {
+      padding: 6px 14px;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: all 150ms ease-in-out;
+    }
+
+    .tab-pill.active {
+      background: #FFFFFF;
+      color: var(--text);
+      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.06);
+      font-weight: 600;
+    }
+
+    .textarea-input {
+      width: 100%;
+      height: 120px;
+      padding: 12px;
+      border: 1px solid var(--border-dark);
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.45;
+      background: #FFFFFF;
+      resize: vertical;
+      transition: border-color 150ms ease-in-out;
+    }
+
+    .textarea-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+    }
+
+    .select-input, .text-input {
+      width: 100%;
+      height: 44px;
+      padding: 0 12px;
+      border: 1px solid var(--border-dark);
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 14px;
+      color: var(--text);
+      background: #FFFFFF;
+      transition: border-color 150ms ease-in-out;
+    }
+
+    .select-input:focus, .text-input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.15);
+    }
+
+    .field-hint {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .field-error {
+      font-size: 13px;
+      color: var(--status-red);
+      display: none;
+    }
+
+    .field-error.visible {
+      display: block;
+    }
+
+    .inputs-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+    }
+
+    /* Progress Step List */
+    .progress-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 32px;
+      display: none;
+    }
+
+    .progress-card.visible {
+      display: block;
+    }
+
+    .progress-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    .step-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .step-item.active {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .step-item.done {
+      color: var(--status-green);
+    }
+
+    .step-icon-state {
+      width: 20px;
+      height: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* Summary Row (4 Cards) */
+    .summary-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .summary-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      cursor: pointer;
+      transition: all 150ms ease-in-out;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 130px;
+    }
+
+    .summary-card:hover, .summary-card:focus-visible {
+      border-color: var(--accent);
+      outline: none;
+      box-shadow: 0 2px 4px rgba(15, 23, 42, 0.05);
+    }
+
+    .summary-card-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .summary-card-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .summary-card-value {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+
+    .summary-card-sub {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    /* Small score ring in card */
+    .mini-ring {
+      width: 44px;
+      height: 44px;
+      position: relative;
+    }
+
+    .mini-ring svg {
+      width: 100%;
+      height: 100%;
+      transform: rotate(-90deg);
+    }
+
+    .mini-ring circle {
+      stroke-width: 5;
+      fill: none;
+    }
+
+    .mini-ring-bg { stroke: var(--border); }
+    .mini-ring-fill {
+      stroke: var(--accent);
+      stroke-linecap: round;
+      stroke-dasharray: 119.4;
+      stroke-dashoffset: 35.8;
+      transition: stroke-dashoffset 400ms ease;
+    }
+
+    /* Tab Navigation */
+    .tabs-nav {
+      display: flex;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 24px;
+      gap: 8px;
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      padding: 12px 18px;
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 150ms ease-in-out;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      color: var(--text);
+    }
+
+    .tab-btn.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+      font-weight: 600;
+    }
+
+    .tab-btn:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: -2px;
+    }
+
+    /* Tab Content Wrappers */
+    .tab-pane {
+      display: none;
+    }
+
+    .tab-pane.active {
+      display: block;
+    }
+
+    .tab-banner {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .tab-banner strong {
+      color: var(--text);
+    }
+
+    .tab-next-steps {
+      background: #FFFFFF;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      margin-top: 32px;
+    }
+
+    .tab-next-steps h4 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .tab-next-steps ul {
+      margin-left: 20px;
+      font-size: 14px;
+      color: var(--text-secondary);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    /* Tables */
+    .table-responsive {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--card-bg);
+      margin-bottom: 24px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    th {
+      background: var(--bg);
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      border-bottom: 1px solid var(--border);
+    }
+
+    td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+      vertical-align: top;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Status Chips */
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+
+    .chip-green {
+      background: var(--status-green-bg);
+      color: var(--status-green);
+      border: 1px solid var(--status-green-border);
+    }
+
+    .chip-amber {
+      background: var(--status-amber-bg);
+      color: var(--status-amber);
+      border: 1px solid var(--status-amber-border);
+    }
+
+    .chip-red {
+      background: var(--status-red-bg);
+      color: var(--status-red);
+      border: 1px solid var(--status-red-border);
+    }
+
+    .chip-gray {
+      background: var(--bg);
+      color: var(--text-secondary);
+      border: 1px solid var(--border);
+    }
+
+    /* Overview Strengths & Gaps */
+    .strengths-gaps-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+
+    .sg-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .sg-card-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sg-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .sg-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      font-size: 14px;
+    }
+
+    .sg-item-name {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .sg-item-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    /* Loss Bars */
+    .loss-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .loss-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .loss-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+    }
+
+    .loss-name { font-weight: 500; }
+    .loss-pts { font-weight: 600; color: var(--status-red); }
+
+    .loss-track {
+      height: 8px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .loss-fill {
+      height: 100%;
+      background: var(--status-red);
+      border-radius: 4px;
+      transition: width 400ms ease;
+    }
+
+    /* 12 Competency Dual Bars */
+    .competency-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 20px;
+    }
+
+    .comp-bar-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .comp-bar-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 14px;
+    }
+
+    .comp-bar-title {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .comp-bar-score {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .comp-track {
+      height: 10px;
+      background: #E2E8F0;
+      border-radius: 5px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .comp-candidate-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 5px;
+      transition: width 400ms ease;
+    }
+
+    /* Monthly commit bar chart */
+    .chart-container {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      margin-bottom: 24px;
+    }
+
+    .chart-header {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .timeline-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      height: 140px;
+      padding-top: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .timeline-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      height: 100%;
+      justify-content: flex-end;
+    }
+
+    .timeline-bar {
+      width: 100%;
+      max-width: 32px;
+      background: var(--accent);
+      border-radius: 4px 4px 0 0;
+      min-height: 4px;
+      transition: height 400ms ease;
+    }
+
+    .timeline-month {
+      font-size: 12px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    .timeline-count {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    /* Roadmap Weeks */
+    .roadmap-controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+    }
+
+    .roadmap-controls-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .roadmap-controls-group input {
+      width: 64px;
+      height: 38px;
+      border: 1px solid var(--border-dark);
+      border-radius: 6px;
+      padding: 0 8px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+
+    .weeks-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-bottom: 32px;
+    }
+
+    .week-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+    }
+
+    .week-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .week-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--text);
+    }
+
+    .week-meta {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .task-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 6px 0;
+      font-size: 14px;
+    }
+
+    .task-checkbox {
+      margin-top: 3px;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      accent-color: var(--accent);
+    }
+
+    .task-text.checked {
+      text-decoration: line-through;
+      color: var(--text-muted);
+    }
+
+    .proof-box {
+      margin-top: 14px;
+      padding: 12px 14px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 13px;
+    }
+
+    .proof-box-title {
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .proof-box-deliverables {
+      margin-left: 18px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .proof-box-resume {
+      margin-top: 6px;
+      font-style: italic;
+      color: var(--accent);
+    }
+
+    /* Error Banner */
+    .error-banner {
+      background: var(--status-red-bg);
+      border: 1px solid var(--status-red-border);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 24px;
+      display: none;
+    }
+
+    .error-banner.visible {
+      display: block;
+    }
+
+    .error-banner-title {
+      font-weight: 700;
+      font-size: 16px;
+      color: var(--status-red);
+      margin-bottom: 6px;
+    }
+
+    .error-banner-desc {
+      font-size: 14px;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+
+    /* Print Styles */
+    @media print {
+      .header, .inputs-panel, .collapsed-summary, .tabs-nav, .roadmap-controls, .tab-next-steps, .btn {
+        display: none !important;
+      }
+      body {
+        background: #FFFFFF !important;
+      }
+      .tab-pane {
+        display: none !important;
+      }
+      #pane-roadmap {
+        display: block !important;
+      }
+      .week-card {
+        page-break-inside: avoid;
+        border: 1px solid #000000 !important;
+      }
+    }
+
+    /* Reduced Motion */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        transition: none !important;
+        animation: none !important;
+      }
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .inputs-grid {
+        grid-template-columns: 1fr;
+      }
+      .summary-row {
+        grid-template-columns: 1fr 1fr;
+      }
+      .strengths-gaps-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .summary-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top bar -->
+  <header class="header" role="banner">
+    <div class="header-inner">
+      <a href="index.html" class="brand" aria-label="Cairn home">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <rect x="7" y="3" width="10" height="4.5" rx="2.25" fill="#2563EB"/>
+          <rect x="4" y="9.5" width="16" height="5" rx="2.5" fill="#0F172A"/>
+          <rect x="2" y="16.5" width="20" height="5.5" rx="2.75" fill="#0F172A"/>
+        </svg>
+        <span>Cairn</span>
+      </a>
+      <div class="header-actions">
+        <span class="status-pill"><span class="status-dot"></span> System ready</span>
+        <a href="dashboard.html" id="nav-dashboard" class="btn btn-secondary" style="height:36px;padding:0 14px;font-size:13px;text-decoration:none;display:none;">Dashboard</a>
+        <div id="user-pill" style="display:none;font-size:13px;color:var(--text-secondary);padding:4px 10px;background:#F2F4F7;border-radius:16px;"></div>
+        <button id="btn-auth" class="btn btn-secondary" style="height:36px;padding:0 14px;font-size:13px;">Sign in</button>
+        <button id="btn-new-analysis" class="btn btn-secondary" style="height:36px;padding:0 14px;font-size:13px;">New analysis</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- Error Banner -->
+    <div id="error-banner" class="error-banner" role="alert">
+      <div id="error-title" class="error-banner-title">Analysis failed</div>
+      <div id="error-desc" class="error-banner-desc">Something went wrong while processing your files.</div>
+      <button id="btn-error-retry" class="btn btn-secondary" style="height:36px;padding:0 14px;font-size:13px;">Retry</button>
+    </div>
+
+    <!-- Collapsed Input Summary Bar (shown after results) -->
+    <div id="collapsed-summary" class="collapsed-summary" style="display:none;">
+      <div class="collapsed-meta">
+        <strong>Resume:</strong> <span id="summary-resume-name">resume.pdf</span>
+        <span class="collapsed-divider">·</span>
+        <strong>Job:</strong> <span id="summary-jd-name">Job Description</span>
+        <span class="collapsed-divider">·</span>
+        <strong>Company:</strong> <span id="summary-comp-name">Auto-detected</span>
+      </div>
+      <button id="btn-edit-inputs" class="btn btn-secondary" style="height:36px;padding:0 14px;font-size:13px;">Edit and re-run</button>
+    </div>
+
+    <!-- Inputs Panel -->
+    <section id="inputs-panel" class="card inputs-panel" aria-labelledby="inputs-heading">
+      <div class="panel-header">
+        <h1 id="inputs-heading" class="panel-title">Resume & Job Analysis</h1>
+        <p class="panel-subtitle">Upload your documents to benchmark technical fit, detect ATS anomalies, verify GitHub code, and get a study roadmap.</p>
+      </div>
+
+      <div class="inputs-grid">
+        <!-- 1. Resume -->
+        <div class="form-group">
+          <label class="form-label" for="resume-input">
+            1. Your resume
+            <span class="form-label-hint">PDF or Word (.pdf, .docx)</span>
+          </label>
+          <div id="saved-resume-container" style="display:none; margin-bottom: 10px;">
+            <select id="saved-resume-select" class="select-input" style="height: 38px; font-size: 13px; margin-bottom: 4px;">
+              <option value="">-- Choose from your saved resumes --</option>
+            </select>
+            <div style="font-size: 12px; color: var(--text-muted); text-align: center; margin: 4px 0;">— or upload a different file —</div>
+          </div>
+          <div id="resume-dropzone" class="dropzone" tabindex="0" role="button" aria-label="Upload resume file">
+            <svg class="dropzone-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="12" y2="12"/><line x1="15" y1="15" x2="12" y2="12"/>
+            </svg>
+            <div id="resume-status-text" class="dropzone-text">
+              Drag and drop your resume or <strong>Browse files</strong>
+            </div>
+            <input type="file" id="resume-input" accept=".pdf,.docx,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document" style="display:none;">
+          </div>
+          <div id="resume-error" class="field-error">Please select a resume file (PDF or Word).</div>
+        </div>
+
+        <!-- 2. Job Description -->
+        <div class="form-group">
+          <label class="form-label">
+            2. Job description
+            <span class="form-label-hint">Text or document</span>
+          </label>
+          <div class="tab-pills" role="tablist">
+            <button type="button" id="tab-jd-text" class="tab-pill active" role="tab" aria-selected="true">Paste text</button>
+            <button type="button" id="tab-jd-file" class="tab-pill" role="tab" aria-selected="false">Upload file</button>
+          </div>
+
+          <!-- Paste Text Area -->
+          <div id="jd-text-container">
+            <textarea id="jd-textarea" class="textarea-input" placeholder="Paste the full job description or core technical requirements here..."></textarea>
+          </div>
+
+          <!-- Upload File Area -->
+          <div id="jd-file-container" style="display:none;">
+            <div id="jd-dropzone" class="dropzone" tabindex="0" role="button" aria-label="Upload job description file">
+              <svg class="dropzone-icon" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>
+              </svg>
+              <div id="jd-status-text" class="dropzone-text">
+                Drag and drop job document or <strong>Browse</strong> (.pdf, .docx, .txt)
+              </div>
+              <input type="file" id="jd-file-input" accept=".pdf,.docx,.txt" style="display:none;">
+            </div>
+          </div>
+          <div id="jd-error" class="field-error">Please enter or upload a job description.</div>
+        </div>
+
+        <!-- 3. Target Company -->
+        <div class="form-group">
+          <label class="form-label" for="company-select">
+            3. Target company (optional)
+            <span class="form-label-hint">113 benchmark standards</span>
+          </label>
+          <select id="company-select" class="select-input">
+            <option value="">-- Choose target company or auto-detect from JD --</option>
+          </select>
+          <div id="company-detection-label" class="field-hint" style="display:none;">
+            Detected from the job description: <strong id="detected-company-name">Google</strong>. <button type="button" id="btn-change-company" class="btn-text">Change</button>
+          </div>
+        </div>
+
+        <!-- 4. GitHub Username -->
+        <div class="form-group">
+          <label class="form-label" for="github-username-input">
+            4. GitHub username (optional)
+            <span class="form-label-hint">For code claim verification</span>
+          </label>
+          <input type="text" id="github-username-input" class="text-input" placeholder="e.g. rohanverma (auto-filled if on resume)">
+          <div class="field-hint">Used for public repository signals (commit shapes, test suites, languages). Signals, not proof.</div>
+        </div>
+      </div>
+
+      <div class="inputs-footer" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 16px;">
+          <button id="btn-analyze" class="btn btn-primary" type="button">Analyze my resume</button>
+          <button id="btn-try-sample" class="btn-text" type="button" style="font-size:14px;">Try with a sample (Rohan Verma + Google SWE)</button>
+        </div>
+        <div id="save-history-container" style="display: none; align-items: center; gap: 8px;">
+          <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 500; cursor: pointer; color: var(--text-secondary);">
+            <input type="checkbox" id="chk-save-history" checked style="width: 16px; height: 16px; accent-color: var(--accent);">
+            <span>Save to dashboard history</span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- While Analyzing Step List -->
+    <section id="progress-card" class="progress-card" aria-live="polite">
+      <h2 class="progress-title">Running diagnostics...</h2>
+      <div class="step-list">
+        <div id="step-1" class="step-item active">
+          <span class="step-icon-state">⏳</span>
+          <span>Reading your resume</span>
+        </div>
+        <div id="step-2" class="step-item">
+          <span class="step-icon-state">⏳</span>
+          <span>Reading the job description</span>
+        </div>
+        <div id="step-3" class="step-item">
+          <span class="step-icon-state">⏳</span>
+          <span>Checking your resume for ATS issues</span>
+        </div>
+        <div id="step-4" class="step-item">
+          <span class="step-icon-state">⏳</span>
+          <span>Looking up your GitHub signals</span>
+        </div>
+        <div id="step-5" class="step-item">
+          <span class="step-icon-state">⏳</span>
+          <span>Building your study roadmap</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Results Section -->
+    <div id="results-wrapper" style="display:none;">
+
+      <!-- Summary Row of 4 Clickable Cards -->
+      <section class="summary-row" aria-label="Core diagnostic summaries">
+        <!-- 1. Job match -->
+        <div class="summary-card" tabindex="0" role="button" data-tab="skills" aria-label="Job match summary. Click to open Skills tab.">
+          <div class="summary-card-top">
+            <span class="summary-card-label">Job match</span>
+            <div class="mini-ring" aria-hidden="true">
+              <svg viewBox="0 0 44 44">
+                <circle class="mini-ring-bg" cx="22" cy="22" r="19" />
+                <circle id="ring-match-fill" class="mini-ring-fill" cx="22" cy="22" r="19" />
+              </svg>
+            </div>
+          </div>
+          <div>
+            <div id="card-match-value" class="summary-card-value">--%</div>
+            <div id="card-match-sub" class="summary-card-sub">Evaluating skills...</div>
+          </div>
+        </div>
+
+        <!-- 2. Readiness for company -->
+        <div class="summary-card" tabindex="0" role="button" data-tab="overview" aria-label="Company readiness summary. Click to open Overview tab.">
+          <div class="summary-card-top">
+            <span id="card-readiness-label" class="summary-card-label">Readiness</span>
+            <div class="mini-ring" aria-hidden="true">
+              <svg viewBox="0 0 44 44">
+                <circle class="mini-ring-bg" cx="22" cy="22" r="19" />
+                <circle id="ring-readiness-fill" class="mini-ring-fill" cx="22" cy="22" r="19" />
+              </svg>
+            </div>
+          </div>
+          <div>
+            <div id="card-readiness-value" class="summary-card-value">-- / 100</div>
+            <div id="card-readiness-sub" class="summary-card-sub">Company benchmark</div>
+          </div>
+        </div>
+
+        <!-- 3. Resume ATS risk -->
+        <div class="summary-card" tabindex="0" role="button" data-tab="ats" aria-label="Resume ATS risk summary. Click to open ATS check tab.">
+          <div class="summary-card-top">
+            <span class="summary-card-label">Resume ATS risk</span>
+            <span id="card-ats-chip" class="chip chip-gray">Checking...</span>
+          </div>
+          <div>
+            <div id="card-ats-title" class="summary-card-value" style="font-size:20px;">--</div>
+            <div id="card-ats-sub" class="summary-card-sub">Format & keyword audit</div>
+          </div>
+        </div>
+
+        <!-- 4. GitHub proof -->
+        <div class="summary-card" tabindex="0" role="button" data-tab="github" aria-label="GitHub proof summary. Click to open GitHub proof tab.">
+          <div class="summary-card-top">
+            <span class="summary-card-label">GitHub proof</span>
+            <span id="card-gh-chip" class="chip chip-gray">Signals</span>
+          </div>
+          <div>
+            <div id="card-gh-title" class="summary-card-value" style="font-size:20px;">--</div>
+            <div id="card-gh-sub" class="summary-card-sub">Signals, not proof</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tabs Navigation -->
+      <nav class="tabs-nav" role="tablist" aria-label="Analysis sections">
+        <button type="button" class="tab-btn active" role="tab" aria-selected="true" data-tab="overview">Overview</button>
+        <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="skills">Skills</button>
+        <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="ats">ATS check</button>
+        <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="github">GitHub proof</button>
+        <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="profiles">Profiles</button>
+        <button type="button" class="tab-btn" role="tab" aria-selected="false" data-tab="roadmap">Roadmap</button>
+      </nav>
+
+      <!-- TAB 1: OVERVIEW -->
+      <section id="pane-overview" class="tab-pane active" role="tabpanel">
+        <div class="tab-banner">
+          <strong>What this shows:</strong> High-level diagnosis of your strongest qualifications, core skill gaps, and where you gain the most points.
+        </div>
+
+        <div class="strengths-gaps-grid">
+          <div class="sg-card">
+            <h3 class="sg-card-title" style="color:var(--status-green);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Top 3 Strengths
+            </h3>
+            <ul id="overview-strengths-list" class="sg-list"></ul>
+          </div>
+
+          <div class="sg-card">
+            <h3 class="sg-card-title" style="color:var(--status-amber);">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Top 3 Missing Skills
+            </h3>
+            <ul id="overview-gaps-list" class="sg-list"></ul>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:24px;">
+          <h3 style="font-size:16px;font-weight:600;margin-bottom:6px;">Where you lose points</h3>
+          <p style="font-size:14px;color:var(--text-secondary);margin-bottom:20px;">Ranked list of skill area point losses subtracting from a perfect 100 score at the target company.</p>
+          <div id="overview-loss-bars" class="loss-list"></div>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:16px;font-weight:600;margin-bottom:6px;">Next 5 skills worth learning</h3>
+          <p style="font-size:14px;color:var(--text-secondary);margin-bottom:16px;">Fastest ways to gain points: highest score increase in the fewest study hours.</p>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Skill area</th>
+                  <th>Current level</th>
+                  <th>Company expects</th>
+                  <th>Points added</th>
+                  <th>Estimated hours</th>
+                </tr>
+              </thead>
+              <tbody id="overview-next-best-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="tab-next-steps">
+          <h4>What to do next</h4>
+          <ul>
+            <li>Examine the verified vs missing technical requirements in the <strong>Skills</strong> tab.</li>
+            <li>Review the recommended repository evidence in <strong>GitHub proof</strong>.</li>
+            <li>Follow the week-by-week study plan in the <strong>Roadmap</strong> tab.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- TAB 2: SKILLS -->
+      <section id="pane-skills" class="tab-pane" role="tabpanel">
+        <div class="tab-banner">
+          <strong>What this shows:</strong> Line-by-line verification of the skills required by the job description, plus your level across 12 core engineering competency areas.
+        </div>
+
+        <div class="card" style="margin-bottom:24px;">
+          <h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">Job Description Requirements Verification</h3>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Skill name</th>
+                  <th>Skill area</th>
+                  <th>Status</th>
+                  <th>Evidence quote / Why needed</th>
+                </tr>
+              </thead>
+              <tbody id="skills-table-body"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:16px;font-weight:600;margin-bottom:6px;">12 Competency Areas vs Company Bar</h3>
+          <p style="font-size:14px;color:var(--text-secondary);margin-bottom:16px;">Sorted by biggest readiness gap first. Blue shows your verified level; gray shows what this company expects.</p>
+          <div id="competency-bars-container" class="competency-bars"></div>
+        </div>
+
+        <div class="tab-next-steps">
+          <h4>What to do next</h4>
+          <ul>
+            <li>Add missing keywords with concrete project context to your resume bullet points.</li>
+            <li>Focus your upcoming study time on your highest-gap competency areas.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- TAB 3: ATS CHECK -->
+      <section id="pane-ats" class="tab-pane" role="tabpanel">
+        <div class="tab-banner">
+          <strong>What this shows:</strong> Automated scanning for keyword stuffing, camouflage text, invisible characters, formatting anomalies, and section structure issues.
+        </div>
+
+        <div class="card" style="margin-bottom:24px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <div>
+              <h3 style="font-size:17px;font-weight:600;">Automated Screening Audit</h3>
+              <p style="font-size:14px;color:var(--text-secondary);">Applicant Tracking Systems (ATS) scan plain text and reject resumes with hidden text or ungrounded skill lists.</p>
+            </div>
+            <div id="ats-risk-badge-container"></div>
+          </div>
+          <div id="ats-findings-container" style="display:flex;flex-direction:column;gap:16px;"></div>
+        </div>
+
+        <div class="tab-next-steps">
+          <h4>What to do next</h4>
+          <ul>
+            <li>Address any flagged formatting issues directly in your resume document.</li>
+            <li>Ensure standard section headers (Education, Experience, Projects, Skills) are visible.</li>
+            <li>Avoid microscopic or white text keywords that trigger automated rejection filters.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- TAB 4: GITHUB PROOF -->
+      <section id="pane-github" class="tab-pane" role="tabpanel">
+        <div class="tab-banner">
+          <strong>What this shows:</strong> Verification of public GitHub repositories against resume project claims and declared programming languages. All findings are signals, not proof.
+        </div>
+
+        <div class="honest-strip" style="margin-bottom:24px;">
+          <div class="honest-strip-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          </div>
+          <div class="honest-strip-text">
+            <strong>These are signals, not proof.</strong> GitHub activity reflects public evidence only. Private repositories and employer code are not evaluated.
+          </div>
+        </div>
+
+        <div id="github-content-placeholder" class="card" style="text-align:center;padding:48px 24px;display:none;">
+          <p style="font-size:15px;color:var(--text-secondary);margin-bottom:12px;">No GitHub username provided.</p>
+          <p style="font-size:13px;color:var(--text-muted);">Enter a GitHub username above and click "Edit and re-run" to check public code signals.</p>
+        </div>
+
+        <div id="github-content-loaded">
+          <div class="card" style="margin-bottom:24px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
+              <div>
+                <h3 style="font-size:17px;font-weight:600;">Repository Evidence Score</h3>
+                <p style="font-size:14px;color:var(--text-secondary);">Based on matched project code, tests and documentation, regular commit history, and public activity. Signals, not proof.</p>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <span id="gh-score-val" style="font-size:24px;font-weight:700;">-- / 100</span>
+                <span id="gh-score-level-chip" class="chip chip-gray">Checking</span>
+              </div>
+            </div>
+            <div id="gh-warnings-box" style="margin-top:12px;"></div>
+          </div>
+
+          <!-- Project Claims Verification -->
+          <div class="card" style="margin-bottom:24px;">
+            <h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">Resume Project Claims vs Public Code</h3>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Claimed project</th>
+                    <th>Matched repository</th>
+                    <th>Status</th>
+                    <th>Signals & Reason</th>
+                  </tr>
+                </thead>
+                <tbody id="gh-projects-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Language Share -->
+          <div class="card" style="margin-bottom:24px;">
+            <h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">Programming Language Share in Public Repositories</h3>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Language</th>
+                    <th>Public code bytes</th>
+                    <th>Share</th>
+                    <th>Verification status</th>
+                  </tr>
+                </thead>
+                <tbody id="gh-langs-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Analyzed Repositories -->
+          <div class="card" style="margin-bottom:24px;">
+            <h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">Analyzed Repositories</h3>
+            <div class="table-responsive">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Repository</th>
+                    <th>Commits</th>
+                    <th>Engineering hygiene</th>
+                    <th>Evidence strength</th>
+                    <th>Commit pattern signal</th>
+                  </tr>
+                </thead>
+                <tbody id="gh-repos-tbody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Monthly Timeline Chart -->
+          <div id="gh-chart-container" class="chart-container">
+            <h3 class="chart-header">Monthly Commit Activity</h3>
+            <div id="gh-timeline-chart" class="timeline-chart"></div>
+          </div>
+        </div>
+
+        <div class="tab-next-steps">
+          <h4>What to do next</h4>
+          <ul>
+            <li>Add README documentation and automated test suites to your primary public repositories.</li>
+            <li>Commit iteratively rather than pushing monolithic single-day code dumps.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- TAB 5: PROFILES -->
+      <section id="pane-profiles" class="tab-pane" role="tabpanel">
+        <div class="tab-banner">
+          <strong>What this shows:</strong> Public developer and competitive programming profiles detected on your resume with live activity statistics.
+        </div>
+
+        <div class="card" style="margin-bottom:24px;">
+          <h3 style="font-size:16px;font-weight:600;margin-bottom:16px;">Detected Profiles & Verified Footprint</h3>
+          <div id="profiles-grid" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:16px;"></div>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:16px;font-weight:600;margin-bottom:12px;">Recommended Profile Additions</h3>
+          <p style="font-size:14px;color:var(--text-secondary);margin-bottom:16px;">Adding active public profiles to your resume header gives engineering hiring managers fast, credible verification.</p>
+          <ul id="missing-profiles-list" style="margin-left:20px;font-size:14px;color:var(--text);display:flex;flex-direction:column;gap:8px;"></ul>
+        </div>
+
+        <div class="tab-next-steps">
+          <h4>What to do next</h4>
+          <ul>
+            <li>Place your verified GitHub and LeetCode links prominently in your resume header.</li>
+            <li>Keep competitive programming profiles active to demonstrate continued algorithmic practice.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- TAB 6: ROADMAP -->
+      <section id="pane-roadmap" class="tab-pane" role="tabpanel">
+        <div class="tab-banner">
+          <strong>What this shows:</strong> Deterministic, week-by-week study and practice plan greedily optimized to close your biggest readiness gaps in the fewest hours.
+        </div>
+
+        <div class="roadmap-controls">
+          <div class="roadmap-controls-group">
+            <label for="input-hpw">Hours per week:</label>
+            <input type="number" id="input-hpw" min="2" max="30" value="8">
+          </div>
+          <div class="roadmap-controls-group">
+            <label for="input-weeks">Total weeks:</label>
+            <input type="number" id="input-weeks" min="4" max="24" value="12">
+          </div>
+          <button id="btn-update-roadmap" class="btn btn-secondary" style="height:38px;padding:0 14px;font-size:13px;">Update plan</button>
+          <div style="margin-left:auto;display:flex;gap:8px;">
+            <button id="btn-copy-plan" class="btn btn-secondary" style="height:38px;padding:0 14px;font-size:13px;">Copy as text</button>
+            <button id="btn-print-plan" class="btn btn-secondary" style="height:38px;padding:0 14px;font-size:13px;">Print or save as PDF</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:24px;">
+          <h3 style="font-size:16px;font-weight:600;margin-bottom:8px;">Plan Summary</h3>
+          <p id="roadmap-summary-text" style="font-size:15px;color:var(--text);line-height:1.55;"></p>
+        </div>
+
+        <!-- Resume Fixes Banner -->
+        <div id="roadmap-resume-fixes-card" class="card" style="margin-bottom:24px;border-left:4px solid var(--status-amber);display:none;">
+          <h3 style="font-size:15px;font-weight:600;color:var(--status-amber);margin-bottom:8px;">Week 1 Action: Immediate Resume Remediation</h3>
+          <ul id="roadmap-resume-fixes-list" style="margin-left:20px;font-size:14px;color:var(--text);display:flex;flex-direction:column;gap:6px;"></ul>
+        </div>
+
+        <!-- GitHub Fixes Banner -->
+        <div id="roadmap-github-fixes-card" class="card" style="margin-bottom:24px;border-left:4px solid var(--accent);display:none;">
+          <h3 style="font-size:15px;font-weight:600;color:var(--accent);margin-bottom:8px;">Repository Hygiene Improvements</h3>
+          <ul id="roadmap-github-fixes-list" style="margin-left:20px;font-size:14px;color:var(--text);display:flex;flex-direction:column;gap:6px;"></ul>
+        </div>
+
+        <!-- Weekly Plan List -->
+        <div id="roadmap-weeks-list" class="weeks-list"></div>
+
+        <!-- Also Learn Section -->
+        <div id="roadmap-also-learn-card" class="card" style="margin-bottom:24px;display:none;">
+          <h3 style="font-size:15px;font-weight:600;margin-bottom:8px;">Supplementary Skills (Also Learn)</h3>
+          <p style="font-size:13px;color:var(--text-secondary);margin-bottom:12px;">Specific tools or libraries from the job description outside the 12 core competency areas.</p>
+          <ul id="roadmap-also-learn-list" style="margin-left:20px;font-size:14px;color:var(--text);display:flex;flex-direction:column;gap:6px;"></ul>
+        </div>
+
+        <!-- Assumptions -->
+        <div class="card" style="background:var(--bg);">
+          <h4 style="font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;color:var(--text-muted);margin-bottom:6px;">Planning Assumptions</h4>
+          <ul id="roadmap-assumptions-list" style="margin-left:18px;font-size:13px;color:var(--text-secondary);display:flex;flex-direction:column;gap:4px;"></ul>
+        </div>
+
+        <div class="tab-next-steps">
+          <h4>What to do next</h4>
+          <ul>
+            <li>Check off your Week 1 resume remediation items immediately.</li>
+            <li>Schedule dedicated daily hours to complete each week's practice tasks.</li>
+            <li>Commit your proof project repository with automated GitHub Actions CI.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- Guest Sign-in Banner -->
+      <div id="guest-save-banner" class="card" style="display:none; background: #FFFFFF; border: 1px solid var(--border); padding: 20px 24px; margin-top: 24px; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+        <div>
+          <h4 style="font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 4px;">Want to save this analysis and track applications?</h4>
+          <p style="font-size: 13px; color: var(--text-secondary); margin: 0;">Sign in with your email to save resumes, track job stages, and sync your study roadmap progress.</p>
+        </div>
+        <a href="login.html?return=analyze.html" class="btn btn-primary" style="height: 38px; padding: 0 16px; font-size: 13px; text-decoration: none;">Sign in with email</a>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="vendor/supabase.min.js"></script>
+  <script>
+    // State
+    let state = {
+      resumeFile: null,
+      savedResumeId: null,
+      analysisId: null,
+      roadmapDone: {},
+      jdFile: null,
+      jdText: '',
+      jdMode: 'text', // 'text' | 'file'
+      companyId: null,
+      companyName: '',
+      githubUsername: '',
+      analysis: null,
+      provenance: null,
+      roadmap: null,
+      socialsStats: {},
+      isAnalyzing: false
+    };
+
+    let supabaseClient = null;
+    let currentUser = null;
+    let currentToken = null;
+
+    // DOM Elements
+    const navDashboard = document.getElementById('nav-dashboard');
+    const userPill = document.getElementById('user-pill');
+    const btnAuth = document.getElementById('btn-auth');
+
+    const savedResumeContainer = document.getElementById('saved-resume-container');
+    const savedResumeSelect = document.getElementById('saved-resume-select');
+    const saveHistoryContainer = document.getElementById('save-history-container');
+    const chkSaveHistory = document.getElementById('chk-save-history');
+    const guestSaveBanner = document.getElementById('guest-save-banner');
+
+    const resumeInput = document.getElementById('resume-input');
+    const resumeDropzone = document.getElementById('resume-dropzone');
+    const resumeStatusText = document.getElementById('resume-status-text');
+    const resumeError = document.getElementById('resume-error');
+
+    const tabJdText = document.getElementById('tab-jd-text');
+    const tabJdFile = document.getElementById('tab-jd-file');
+    const jdTextContainer = document.getElementById('jd-text-container');
+    const jdFileContainer = document.getElementById('jd-file-container');
+    const jdTextarea = document.getElementById('jd-textarea');
+    const jdFileInput = document.getElementById('jd-file-input');
+    const jdDropzone = document.getElementById('jd-dropzone');
+    const jdStatusText = document.getElementById('jd-status-text');
+    const jdError = document.getElementById('jd-error');
+
+    const companySelect = document.getElementById('company-select');
+    const companyDetectLabel = document.getElementById('company-detection-label');
+    const detectedCompanyName = document.getElementById('detected-company-name');
+    const btnChangeCompany = document.getElementById('btn-change-company');
+    const githubInput = document.getElementById('github-username-input');
+
+    const btnAnalyze = document.getElementById('btn-analyze');
+    const btnTrySample = document.getElementById('btn-try-sample');
+    const btnNewAnalysis = document.getElementById('btn-new-analysis');
+    const btnEditInputs = document.getElementById('btn-edit-inputs');
+    const inputsPanel = document.getElementById('inputs-panel');
+    const collapsedSummary = document.getElementById('collapsed-summary');
+    const progressCard = document.getElementById('progress-card');
+    const resultsWrapper = document.getElementById('results-wrapper');
+    const errorBanner = document.getElementById('error-banner');
+    const btnErrorRetry = document.getElementById('btn-error-retry');
+
+    // 1. Fetch Companies List
+    async function loadCompanies() {
+      try {
+        const res = await fetch('/companies');
+        if (res.ok) {
+          const companies = await res.json();
+          companySelect.innerHTML = '<option value="">-- Choose target company or auto-detect from JD --</option>';
+          companies.forEach(c => {
+            const opt = document.createElement('option');
+            opt.value = c.id;
+            opt.textContent = c.name;
+            companySelect.appendChild(opt);
+          });
+        }
+      } catch (err) {
+        console.error('Failed to load companies:', err);
+      }
+    }
+
+    // 2. Tab switching between Paste text & Upload file
+    tabJdText.addEventListener('click', () => {
+      state.jdMode = 'text';
+      tabJdText.classList.add('active');
+      tabJdText.setAttribute('aria-selected', 'true');
+      tabJdFile.classList.remove('active');
+      tabJdFile.setAttribute('aria-selected', 'false');
+      jdTextContainer.style.display = 'block';
+      jdFileContainer.style.display = 'none';
+    });
+
+    tabJdFile.addEventListener('click', () => {
+      state.jdMode = 'file';
+      tabJdFile.classList.add('active');
+      tabJdFile.setAttribute('aria-selected', 'true');
+      tabJdText.classList.remove('active');
+      tabJdText.setAttribute('aria-selected', 'false');
+      jdTextContainer.style.display = 'none';
+      jdFileContainer.style.display = 'block';
+    });
+
+    // 3. File Input handlers (Resume)
+    resumeDropzone.addEventListener('click', () => resumeInput.click());
+    resumeDropzone.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); resumeInput.click(); }
+    });
+
+    resumeInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        setResumeFile(e.target.files[0]);
+      }
+    });
+
+    resumeDropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      resumeDropzone.classList.add('dragover');
+    });
+
+    resumeDropzone.addEventListener('dragleave', () => {
+      resumeDropzone.classList.remove('dragover');
+    });
+
+    resumeDropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      resumeDropzone.classList.remove('dragover');
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        setResumeFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    function setResumeFile(file) {
+      state.resumeFile = file;
+      state.savedResumeId = null;
+      if (savedResumeSelect) savedResumeSelect.value = '';
+      resumeError.classList.remove('visible');
+      const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
+      resumeStatusText.innerHTML = `<span class="file-pill">📄 ${escapeHtml(file.name)} (${sizeMb} MB)</span>`;
+    }
+
+    if (savedResumeSelect) {
+      savedResumeSelect.addEventListener('change', () => {
+        const selectedId = savedResumeSelect.value;
+        if (selectedId) {
+          state.savedResumeId = selectedId;
+          state.resumeFile = null;
+          resumeInput.value = '';
+          const text = savedResumeSelect.options[savedResumeSelect.selectedIndex].text;
+          resumeStatusText.innerHTML = `<span class="file-pill">Saved resume: ${escapeHtml(text)}</span>`;
+          resumeError.classList.remove('visible');
+        } else {
+          state.savedResumeId = null;
+          resumeStatusText.innerHTML = 'Drag and drop your resume or <strong>Browse files</strong>';
+        }
+      });
+    }
+
+    async function initAuth() {
+      try {
+        const resp = await fetch('/config');
+        const config = await resp.json();
+        if (config.supabase_url && config.supabase_publishable_key && window.supabase) {
+          supabaseClient = window.supabase.createClient(config.supabase_url, config.supabase_publishable_key);
+          const { data: { session } } = await supabaseClient.auth.getSession();
+          if (session) {
+            currentUser = session.user;
+            currentToken = session.access_token;
+            setSignedInUI();
+          } else {
+            setGuestUI();
+          }
+
+          supabaseClient.auth.onAuthStateChange((event, session) => {
+            if (session) {
+              currentUser = session.user;
+              currentToken = session.access_token;
+              setSignedInUI();
+            } else {
+              currentUser = null;
+              currentToken = null;
+              setGuestUI();
+            }
+          });
+        } else {
+          setGuestUI();
+        }
+      } catch (err) {
+        setGuestUI();
+      }
+
+      // Check URL for saved analysis id
+      const urlParams = new URLSearchParams(window.location.search);
+      const savedId = urlParams.get('id');
+      if (savedId) {
+        loadSavedAnalysis(savedId);
+      }
+    }
+
+    async function setSignedInUI() {
+      if (navDashboard) navDashboard.style.display = 'inline-flex';
+      if (userPill) {
+        userPill.textContent = currentUser.email;
+        userPill.style.display = 'inline-flex';
+      }
+      if (btnAuth) {
+        btnAuth.textContent = 'Sign out';
+        btnAuth.onclick = async () => {
+          if (supabaseClient) await supabaseClient.auth.signOut();
+          window.location.reload();
+        };
+      }
+      if (saveHistoryContainer) saveHistoryContainer.style.display = 'flex';
+      if (guestSaveBanner) guestSaveBanner.style.display = 'none';
+
+      // Load user's saved resumes
+      try {
+        const resp = await fetch('/me/resumes', {
+          headers: { 'Authorization': `Bearer ${currentToken}` }
+        });
+        if (resp.ok) {
+          const resumes = await resp.json();
+          if (resumes.length > 0) {
+            savedResumeSelect.innerHTML = '<option value="">-- Choose from your saved resumes --</option>';
+            resumes.forEach(r => {
+              const opt = document.createElement('option');
+              opt.value = r.id;
+              opt.textContent = `${r.title || r.file_name} ${r.is_primary ? '(Primary)' : ''}`;
+              if (r.is_primary) opt.selected = true;
+              savedResumeSelect.appendChild(opt);
+            });
+            savedResumeContainer.style.display = 'block';
+
+            // Auto-select primary
+            const primary = resumes.find(r => r.is_primary) || resumes[0];
+            if (primary) {
+              state.savedResumeId = primary.id;
+              resumeStatusText.innerHTML = `<span class="file-pill">Saved resume: ${escapeHtml(primary.title || primary.file_name)}</span>`;
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('Failed to load saved resumes:', e);
+      }
+    }
+
+    function setGuestUI() {
+      if (navDashboard) navDashboard.style.display = 'none';
+      if (userPill) userPill.style.display = 'none';
+      if (btnAuth) {
+        btnAuth.textContent = 'Sign in';
+        btnAuth.onclick = () => window.location.href = 'login.html?return=analyze.html';
+      }
+      if (saveHistoryContainer) saveHistoryContainer.style.display = 'none';
+      if (savedResumeContainer) savedResumeContainer.style.display = 'none';
+    }
+
+    async function loadSavedAnalysis(savedId) {
+      try {
+        const headers = currentToken ? { 'Authorization': `Bearer ${currentToken}` } : {};
+        const resp = await fetch(`/me/analyses/${savedId}`, { headers });
+        if (resp.ok) {
+          const record = await resp.json();
+          state.analysisId = record.id;
+          state.analysis = record.result;
+          state.roadmapDone = record.roadmap_done || {};
+
+          renderCoreResults(record.result);
+          inputsPanel.style.display = 'none';
+          collapsedSummary.style.display = 'flex';
+          document.getElementById('summary-resume-name').textContent = record.result.extract?.resume?.source_file || 'Saved resume';
+          document.getElementById('summary-jd-name').textContent = record.jd_title || 'Job Description';
+          document.getElementById('summary-comp-name').textContent = record.jd_company || 'Target Company';
+          resultsWrapper.style.display = 'block';
+
+          if (record.result.github_username_detected) {
+            loadProvenance(record.result.github_username_detected, record.result);
+          } else {
+            renderEmptyGithub();
+          }
+
+          loadRoadmap(record.result);
+        }
+      } catch (err) {
+        console.warn('Failed to load saved analysis:', err);
+      }
+    }
+
+    // 4. File Input handlers (JD File)
+    jdDropzone.addEventListener('click', () => jdFileInput.click());
+    jdDropzone.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); jdFileInput.click(); }
+    });
+
+    jdFileInput.addEventListener('change', (e) => {
+      if (e.target.files && e.target.files[0]) {
+        setJdFile(e.target.files[0]);
+      }
+    });
+
+    jdDropzone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      jdDropzone.classList.add('dragover');
+    });
+
+    jdDropzone.addEventListener('dragleave', () => {
+      jdDropzone.classList.remove('dragover');
+    });
+
+    jdDropzone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      jdDropzone.classList.remove('dragover');
+      if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+        setJdFile(e.dataTransfer.files[0]);
+      }
+    });
+
+    function setJdFile(file) {
+      state.jdFile = file;
+      jdError.classList.remove('visible');
+      const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
+      jdStatusText.innerHTML = `<span class="file-pill">📄 ${escapeHtml(file.name)} (${sizeMb} MB)</span>`;
+    }
+
+    // 5. Try with a sample handler
+    async function loadSample() {
+      try {
+        btnTrySample.textContent = 'Loading sample files...';
+        btnTrySample.disabled = true;
+
+        const [resumeBlob, jdBlob] = await Promise.all([
+          fetch('/samples/file/resumes/rohan_verma.pdf').then(r => r.blob()),
+          fetch('/samples/file/jds/google_swe.pdf').then(r => r.blob())
+        ]);
+
+        const sampleResume = new File([resumeBlob], 'rohan_verma.pdf', { type: 'application/pdf' });
+        const sampleJd = new File([jdBlob], 'google_swe.pdf', { type: 'application/pdf' });
+
+        setResumeFile(sampleResume);
+
+        // Set to file mode for exact PDF test
+        tabJdFile.click();
+        setJdFile(sampleJd);
+
+        companySelect.value = '4'; // Google
+        githubInput.value = 'rohanverma';
+
+        btnTrySample.textContent = 'Sample loaded: Rohan Verma + Google SWE';
+        btnTrySample.disabled = false;
+      } catch (err) {
+        console.error('Failed to load sample:', err);
+        btnTrySample.textContent = 'Try with a sample';
+        btnTrySample.disabled = false;
+      }
+    }
+
+    btnTrySample.addEventListener('click', loadSample);
+
+    // 6. Primary Analyze Trigger
+    btnAnalyze.addEventListener('click', runAnalysis);
+    btnErrorRetry.addEventListener('click', runAnalysis);
+
+    async function runAnalysis() {
+      let isValid = true;
+
+      if (!state.resumeFile && !state.savedResumeId) {
+        resumeError.classList.add('visible');
+        isValid = false;
+      } else {
+        resumeError.classList.remove('visible');
+      }
+
+      const hasText = state.jdMode === 'text' && jdTextarea.value.trim().length > 0;
+      const hasFile = state.jdMode === 'file' && Boolean(state.jdFile);
+
+      if (!hasText && !hasFile) {
+        jdError.classList.add('visible');
+        isValid = false;
+      } else {
+        jdError.classList.remove('visible');
+      }
+
+      if (!isValid) return;
+
+      errorBanner.classList.remove('visible');
+      progressCard.classList.add('visible');
+      btnAnalyze.disabled = true;
+      btnAnalyze.textContent = 'Analyzing...';
+
+      // Update step states
+      setStep(1, 'active');
+      setStep(2, 'waiting');
+      setStep(3, 'waiting');
+      setStep(4, 'waiting');
+      setStep(5, 'waiting');
+
+      const formData = new FormData();
+      if (state.resumeFile) {
+        formData.append('resume', state.resumeFile);
+      } else if (state.savedResumeId) {
+        formData.append('resume_id', state.savedResumeId);
+      }
+
+      if (state.jdMode === 'file' && state.jdFile) {
+        formData.append('jd_file', state.jdFile);
+      } else {
+        formData.append('jd_text', jdTextarea.value.trim());
+      }
+
+      if (companySelect.value) {
+        formData.append('company_id', companySelect.value);
+      }
+
+      if (githubInput.value.trim()) {
+        formData.append('github_username', githubInput.value.trim());
+      }
+
+      if (chkSaveHistory && chkSaveHistory.checked && currentToken) {
+        formData.append('save', 'true');
+      }
+
+      // Tick step 1 & 2
+      setTimeout(() => { setStep(1, 'done'); setStep(2, 'active'); }, 250);
+      setTimeout(() => { setStep(2, 'done'); setStep(3, 'active'); }, 500);
+
+      try {
+        const headers = {};
+        if (currentToken) {
+          headers['Authorization'] = `Bearer ${currentToken}`;
+        }
+
+        const resp = await fetch('/analyze', {
+          method: 'POST',
+          headers: headers,
+          body: formData
+        });
+
+        if (!resp.ok) {
+          const errJson = await resp.json().catch(() => ({}));
+          throw new Error(errJson.detail || `Analysis request returned status ${resp.status}`);
+        }
+
+        const data = await resp.json();
+        state.analysis = data;
+        if (data.analysis_id) {
+          state.analysisId = data.analysis_id;
+        }
+
+        setStep(3, 'done');
+
+        // Render immediate core results
+        renderCoreResults(data);
+
+        // Collapse inputs
+        inputsPanel.style.display = 'none';
+        collapsedSummary.style.display = 'flex';
+        const resumeDisplayName = state.resumeFile ? state.resumeFile.name : (savedResumeSelect?.options[savedResumeSelect.selectedIndex]?.text || 'Saved resume');
+        document.getElementById('summary-resume-name').textContent = resumeDisplayName;
+        document.getElementById('summary-jd-name').textContent = state.jdFile ? state.jdFile.name : 'Pasted text';
+        document.getElementById('summary-comp-name').textContent = data.company && data.company.company ? data.company.company : (companySelect.options[companySelect.selectedIndex]?.text || 'General');
+
+        resultsWrapper.style.display = 'block';
+
+        if (!currentToken && guestSaveBanner) {
+          guestSaveBanner.style.display = 'flex';
+        }
+
+        // Lazy load Step 4: GitHub Provenance
+        const detectedGh = data.github_username_detected || githubInput.value.trim();
+        if (detectedGh) {
+          githubInput.value = detectedGh;
+          setStep(4, 'active');
+          loadProvenance(detectedGh, data);
+        } else {
+          setStep(4, 'done');
+          renderEmptyGithub();
+        }
+
+        // Lazy load Step 5: Roadmap
+        setStep(5, 'active');
+        loadRoadmap(data);
+
+        // Lazy load Profile stats
+        loadSocialProfiles(data.socials || []);
+
+      } catch (err) {
+        console.error('Analysis error:', err);
+        progressCard.classList.remove('visible');
+        errorBanner.classList.add('visible');
+        document.getElementById('error-desc').textContent = err.message || 'Could not complete analysis.';
+      } finally {
+        btnAnalyze.disabled = false;
+        btnAnalyze.textContent = 'Analyze my resume';
+      }
+    }
+
+    function setStep(num, status) {
+      const el = document.getElementById(`step-${num}`);
+      if (!el) return;
+      el.classList.remove('active', 'done');
+      const icon = el.querySelector('.step-icon-state');
+      if (status === 'done') {
+        el.classList.add('done');
+        icon.textContent = '✓';
+      } else if (status === 'active') {
+        el.classList.add('active');
+        icon.textContent = '⏳';
+      } else {
+        icon.textContent = '·';
+      }
+    }
+
+    // 7. Render Core Results (Match, Company Readiness, ATS, Skills, Overview)
+    function renderCoreResults(data) {
+      const matchScore = data.match ? (data.match.match_score || 0) : 0;
+      const readinessScore = data.readiness ? (data.readiness.readiness_score || 0) : 0;
+      const compName = data.company && data.company.company ? data.company.company : 'Company';
+
+      // Auto-detected company label
+      if (data.company && data.company.auto_detected && data.company.company_id) {
+        companySelect.value = data.company.company_id;
+        companyDetectLabel.style.display = 'block';
+        detectedCompanyName.textContent = compName;
+      }
+
+      // Summary Cards
+      document.getElementById('card-match-value').textContent = `${matchScore}%`;
+      const matchedCnt = data.match ? (data.match.matched_count || 0) : 0;
+      const missingCnt = data.match ? (data.match.missing_count || 0) : 0;
+      document.getElementById('card-match-sub').textContent = `${matchedCnt} matched · ${missingCnt} missing`;
+
+      // Fill match ring (circumference = 119.4)
+      const matchOffset = 119.4 - (119.4 * (matchScore / 100));
+      document.getElementById('ring-match-fill').style.strokeDashoffset = matchOffset;
+
+      // Readiness card
+      document.getElementById('card-readiness-label').textContent = `Readiness for ${compName}`;
+      document.getElementById('card-readiness-value').textContent = `${readinessScore} / 100`;
+      const readinessOffset = 119.4 - (119.4 * (readinessScore / 100));
+      document.getElementById('ring-readiness-fill').style.strokeDashoffset = readinessOffset;
+
+      // ATS risk card
+      const atsLevel = (data.ats && data.ats.level) ? data.ats.level : 'Low';
+      const atsChip = document.getElementById('card-ats-chip');
+      atsChip.textContent = `${atsLevel} risk`;
+      atsChip.className = 'chip ' + (atsLevel === 'Low' ? 'chip-green' : (atsLevel === 'Medium' ? 'chip-amber' : 'chip-red'));
+      document.getElementById('card-ats-title').textContent = `${atsLevel} Risk`;
+
+      const findings = (data.ats && data.ats.findings) ? data.ats.findings : [];
+      document.getElementById('card-ats-sub').textContent = findings.length === 0 ? 'Clean - no issues found' : `${findings.length} findings to review`;
+
+      // Render Tab 1: Overview
+      renderOverviewTab(data);
+
+      // Render Tab 2: Skills
+      renderSkillsTab(data);
+
+      // Render Tab 3: ATS Check
+      renderAtsTab(data);
+    }
+
+    function renderOverviewTab(data) {
+      // Top 3 Strengths
+      const strengthsList = document.getElementById('overview-strengths-list');
+      strengthsList.innerHTML = '';
+      const matched = (data.match && data.match.matched_skills) ? data.match.matched_skills.slice(0, 3) : [];
+      if (matched.length > 0) {
+        matched.forEach(s => {
+          const li = document.createElement('li');
+          li.className = 'sg-item';
+          const title = s.jd_skill || s.skill || s.skill_name || s.candidate_skill || 'Core Skill';
+          const desc = s.candidate_skill ? `Matches your skill "${s.candidate_skill}"` : (s.evidence || 'Confirmed by resume technical experience');
+          li.innerHTML = `
+            <span class="sg-item-name">✓ ${escapeHtml(title)}</span>
+            <span class="sg-item-desc">${escapeHtml(desc)}</span>
+          `;
+          strengthsList.appendChild(li);
+        });
+      } else {
+        strengthsList.innerHTML = '<li class="sg-item"><span class="sg-item-desc">No confirmed skills matched yet.</span></li>';
+      }
+
+      // Top 3 Missing Skills
+      const gapsList = document.getElementById('overview-gaps-list');
+      gapsList.innerHTML = '';
+      const missing = (data.match && data.match.missing_skills) ? data.match.missing_skills.slice(0, 3) : [];
+      if (missing.length > 0) {
+        missing.forEach(s => {
+          const li = document.createElement('li');
+          li.className = 'sg-item';
+          li.innerHTML = `
+            <span class="sg-item-name" style="color:var(--status-amber);">! ${escapeHtml(s.skill || s.skill_name || '')}</span>
+            <span class="sg-item-desc">${escapeHtml(s.why_needed || 'Required for core role responsibilities')}</span>
+          `;
+          gapsList.appendChild(li);
+        });
+      } else {
+        gapsList.innerHTML = '<li class="sg-item"><span class="sg-item-desc">None! All job skills matched.</span></li>';
+      }
+
+      // Where you lose points (Waterfall)
+      const lossBars = document.getElementById('overview-loss-bars');
+      lossBars.innerHTML = '';
+      const wfItems = (data.readiness && data.readiness.waterfall) ? data.readiness.waterfall : [];
+      if (wfItems.length > 0) {
+        wfItems.slice(0, 6).forEach(item => {
+          const row = document.createElement('div');
+          row.className = 'loss-row';
+          const lossWidth = Math.min(100, (item.points_lost / 25) * 100);
+          row.innerHTML = `
+            <div class="loss-meta">
+              <span class="loss-name">${escapeHtml(item.name || item.category_code)}</span>
+              <span class="loss-pts">-${item.points_lost} pts (level ${item.candidate_level} vs ${item.required_level})</span>
+            </div>
+            <div class="loss-track">
+              <div class="loss-fill" style="width: ${lossWidth}%;"></div>
+            </div>
+          `;
+          lossBars.appendChild(row);
+        });
+      } else {
+        lossBars.innerHTML = '<p style="font-size:14px;color:var(--text-secondary);">Select a benchmark company to view point loss breakdown.</p>';
+      }
+
+      // Next 5 skills worth learning
+      const nextTbody = document.getElementById('overview-next-best-tbody');
+      nextTbody.innerHTML = '';
+      const nextSkills = (data.readiness && data.readiness.next_best_skills) ? data.readiness.next_best_skills : [];
+      if (nextSkills.length > 0) {
+        nextSkills.forEach(s => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><strong>${escapeHtml(s.name || s.category_code)}</strong></td>
+            <td>Level ${s.candidate_level}</td>
+            <td>Level ${s.required_level}</td>
+            <td><span class="chip chip-green">+${s.points_gain_per_level} pts</span></td>
+            <td>~${s.hours_needed} hrs</td>
+          `;
+          nextTbody.appendChild(tr);
+        });
+      } else {
+        nextTbody.innerHTML = '<tr><td colspan="5" style="color:var(--text-secondary);">No immediate gaps found. You meet baseline requirements!</td></tr>';
+      }
+    }
+
+    function renderSkillsTab(data) {
+      const tbody = document.getElementById('skills-table-body');
+      tbody.innerHTML = '';
+
+      const matched = (data.match && data.match.matched_skills) ? data.match.matched_skills : [];
+      const missing = (data.match && data.match.missing_skills) ? data.match.missing_skills : [];
+
+      matched.forEach(s => {
+        const tr = document.createElement('tr');
+        const title = s.jd_skill || s.skill || s.skill_name || s.candidate_skill || 'Technical Skill';
+        const evidence = s.candidate_skill ? `Matches resume skill "${s.candidate_skill}"` : (s.evidence || 'Evidence confirmed in resume text');
+        const status = s.status || (s.partly ? 'Partly' : 'Have');
+        const statusChip = status === 'Have' ? 'chip-green' : (status === 'Partly' ? 'chip-amber' : 'chip-red');
+        tr.innerHTML = `
+          <td><strong>${escapeHtml(title)}</strong></td>
+          <td><span class="chip chip-gray">${escapeHtml(s.category_code || 'Core')}</span></td>
+          <td><span class="chip ${statusChip}">${escapeHtml(status)}</span></td>
+          <td style="color:var(--text-secondary);">${escapeHtml(evidence)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      missing.forEach(s => {
+        const tr = document.createElement('tr');
+        const title = s.skill || s.skill_name || s.jd_skill || 'Technical Requirement';
+        tr.innerHTML = `
+          <td><strong>${escapeHtml(title)}</strong></td>
+          <td><span class="chip chip-gray">${escapeHtml(s.category_code || 'Core')}</span></td>
+          <td><span class="chip chip-red">Missing</span></td>
+          <td style="color:var(--text-secondary);">${escapeHtml(s.why_needed || 'Required for target role responsibilities')}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // 12 Competency Dual Bars (sorted by biggest gap)
+      const barsContainer = document.getElementById('competency-bars-container');
+      barsContainer.innerHTML = '';
+      const wfItems = (data.readiness && data.readiness.waterfall) ? [...data.readiness.waterfall] : [];
+      wfItems.sort((a, b) => b.points_lost - a.points_lost);
+
+      wfItems.forEach(item => {
+        const div = document.createElement('div');
+        div.className = 'comp-bar-item';
+        const candPct = Math.min(100, (item.candidate_level / 10) * 100);
+        const reqPct = Math.min(100, (item.required_level / 10) * 100);
+        div.innerHTML = `
+          <div class="comp-bar-labels">
+            <span class="comp-bar-title">${escapeHtml(item.name || item.category_code)}</span>
+            <span class="comp-bar-score">Candidate: Level ${item.candidate_level} / 10 · Required: Level ${item.required_level} / 10</span>
+          </div>
+          <div class="comp-track" style="background: linear-gradient(to right, #E2E8F0 ${reqPct}%, #F1F5F9 ${reqPct}%);">
+            <div class="comp-candidate-fill" style="width: ${candPct}%;"></div>
+          </div>
+        `;
+        barsContainer.appendChild(div);
+      });
+    }
+
+    function renderAtsTab(data) {
+      const badgeBox = document.getElementById('ats-risk-badge-container');
+      const findingsBox = document.getElementById('ats-findings-container');
+      const level = (data.ats && data.ats.level) ? data.ats.level : 'Low';
+      const score = (data.ats && data.ats.risk_score !== undefined) ? data.ats.risk_score : 0;
+
+      const chipClass = level === 'Low' ? 'chip-green' : (level === 'Medium' ? 'chip-amber' : 'chip-red');
+      badgeBox.innerHTML = `<span class="chip ${chipClass}">${level} risk (${score} / 100)</span>`;
+
+      findingsBox.innerHTML = '';
+      const findings = (data.ats && data.ats.findings) ? data.ats.findings : [];
+
+      if (findings.length === 0) {
+        findingsBox.innerHTML = `
+          <div class="card" style="background:var(--status-green-bg);border-color:var(--status-green-border);">
+            <h4 style="font-size:15px;color:var(--status-green);font-weight:600;margin-bottom:4px;">✓ No ATS issues detected</h4>
+            <p style="font-size:14px;color:var(--text);">Your resume uses standard fonts, clear section headers, and avoids hidden keyword tricks.</p>
+          </div>
+        `;
+        return;
+      }
+
+      findings.forEach(f => {
+        const fCard = document.createElement('div');
+        fCard.className = 'card';
+        const sChip = f.severity === 'high' ? 'chip-red' : (f.severity === 'medium' ? 'chip-amber' : 'chip-gray');
+        fCard.innerHTML = `
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+            <h4 style="font-size:15px;font-weight:600;color:var(--text);">${escapeHtml(f.title || 'Formatting finding')}</h4>
+            <span class="chip ${sChip}">${escapeHtml(f.severity || 'low')}</span>
+          </div>
+          <p style="font-size:14px;color:var(--text);margin-bottom:8px;">${escapeHtml(f.detail || '')}</p>
+          ${f.evidence ? `<div style="font-size:13px;color:var(--text-muted);background:var(--bg);padding:8px;border-radius:4px;margin-bottom:8px;">Evidence: <code>${escapeHtml(f.evidence)}</code></div>` : ''}
+          <p style="font-size:13px;color:var(--status-green);font-weight:500;">Fix: ${escapeHtml(f.fix || 'Review resume formatting')}</p>
+        `;
+        findingsBox.appendChild(fCard);
+      });
+    }
+
+    // 8. Lazy Load: GitHub Provenance
+    async function loadProvenance(username, data) {
+      try {
+        const payload = {
+          github_username: username,
+          resume_text: data.extract?.resume?.raw_text || '',
+          projects: [],
+          skills: data.extract?.resume?.skills || []
+        };
+
+        const resp = await fetch('/provenance', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (resp.ok) {
+          const prov = await resp.json();
+          state.provenance = prov;
+          setStep(4, 'done');
+          renderProvenanceTab(prov);
+        } else {
+          setStep(4, 'done');
+          renderEmptyGithub();
+        }
+      } catch (err) {
+        console.error('Provenance load failed:', err);
+        setStep(4, 'done');
+        renderEmptyGithub();
+      }
+    }
+
+    function renderEmptyGithub() {
+      document.getElementById('github-content-placeholder').style.display = 'block';
+      document.getElementById('github-content-loaded').style.display = 'none';
+      document.getElementById('card-gh-title').textContent = 'Add handle';
+      document.getElementById('card-gh-chip').textContent = 'Optional';
+    }
+
+    function renderProvenanceTab(prov) {
+      document.getElementById('github-content-placeholder').style.display = 'none';
+      document.getElementById('github-content-loaded').style.display = 'block';
+
+      const score = prov.score || 0;
+      const level = prov.level || 'Not enough data';
+
+      // Summary Card
+      document.getElementById('card-gh-title').textContent = `${score} / 100`;
+      const ghChip = document.getElementById('card-gh-chip');
+      ghChip.textContent = level;
+      ghChip.className = 'chip ' + (level === 'Strong' ? 'chip-green' : (level === 'Moderate' ? 'chip-amber' : 'chip-gray'));
+
+      // Provenance Score
+      document.getElementById('gh-score-val').textContent = `${score} / 100`;
+      const lvlChip = document.getElementById('gh-score-level-chip');
+      lvlChip.textContent = level;
+      lvlChip.className = 'chip ' + (level === 'Strong' ? 'chip-green' : (level === 'Moderate' ? 'chip-amber' : 'chip-gray'));
+
+      // Warnings Box
+      const warnBox = document.getElementById('gh-warnings-box');
+      warnBox.innerHTML = '';
+      if (prov.warnings && prov.warnings.length > 0) {
+        prov.warnings.forEach(w => {
+          const div = document.createElement('div');
+          div.className = 'chip chip-amber';
+          div.style.marginBottom = '6px';
+          div.textContent = `! ${w}`;
+          warnBox.appendChild(div);
+        });
+      }
+
+      // Project Claims table
+      const pTbody = document.getElementById('gh-projects-tbody');
+      pTbody.innerHTML = '';
+      const pClaims = (prov.claims && prov.claims.projects) ? prov.claims.projects : [];
+      if (pClaims.length > 0) {
+        pClaims.forEach(pc => {
+          const tr = document.createElement('tr');
+          const chipCls = pc.status === 'Supported' ? 'chip-green' : (pc.status === 'Weak' ? 'chip-amber' : 'chip-gray');
+          tr.innerHTML = `
+            <td><strong>${escapeHtml(pc.project_name)}</strong></td>
+            <td>${pc.matched_repo ? `<code>${escapeHtml(pc.matched_repo)}</code>` : '<span style="color:var(--text-muted);">None</span>'}</td>
+            <td><span class="chip ${chipCls}">${escapeHtml(pc.status)}</span></td>
+            <td style="color:var(--text-secondary);font-size:13px;">${escapeHtml(pc.reason || '')}</td>
+          `;
+          pTbody.appendChild(tr);
+        });
+      } else {
+        pTbody.innerHTML = '<tr><td colspan="4" style="color:var(--text-secondary);">No project claims found to evaluate.</td></tr>';
+      }
+
+      // Languages table
+      const lTbody = document.getElementById('gh-langs-tbody');
+      lTbody.innerHTML = '';
+      const lClaims = (prov.claims && prov.claims.languages) ? prov.claims.languages : [];
+      if (lClaims.length > 0) {
+        lClaims.forEach(lc => {
+          const tr = document.createElement('tr');
+          const chipCls = lc.status.includes('Verified') ? 'chip-green' : (lc.status.includes('Minor') ? 'chip-amber' : 'chip-gray');
+          tr.innerHTML = `
+            <td><strong>${escapeHtml(lc.language)}</strong></td>
+            <td>${(lc.bytes || 0).toLocaleString()} bytes</td>
+            <td>${lc.share_pct}%</td>
+            <td><span class="chip ${chipCls}">${escapeHtml(lc.status)}</span></td>
+          `;
+          lTbody.appendChild(tr);
+        });
+      } else {
+        lTbody.innerHTML = '<tr><td colspan="4" style="color:var(--text-secondary);">No programming languages detected in public repositories.</td></tr>';
+      }
+
+      // Analyzed Repos
+      const rTbody = document.getElementById('gh-repos-tbody');
+      rTbody.innerHTML = '';
+      const repos = prov.repos || [];
+      if (repos.length > 0) {
+        repos.forEach(r => {
+          const tr = document.createElement('tr');
+          const h = r.hygiene || {};
+          const hTags = [];
+          if (h.readme) hTags.push('README');
+          if (h.tests) hTags.push('Tests');
+          if (h.ci) hTags.push('CI');
+          if (h.license) hTags.push('License');
+
+          const chipCls = r.evidence_strength === 'Strong' ? 'chip-green' : (r.evidence_strength === 'Moderate' ? 'chip-amber' : 'chip-gray');
+          const historySignal = (r.signals || []).find(s => s.signal === 'history_shape');
+
+          tr.innerHTML = `
+            <td>
+              <a href="${escapeHtml(r.url)}" target="_blank" rel="noopener" style="color:var(--accent);font-weight:600;">
+                ${escapeHtml(r.name)} ↗
+              </a>
+            </td>
+            <td>${r.commit_count || 0}</td>
+            <td><span style="font-size:13px;color:var(--text-secondary);">${hTags.join(' · ') || 'None'}</span></td>
+            <td><span class="chip ${chipCls}">${escapeHtml(r.evidence_strength)}</span></td>
+            <td style="font-size:13px;color:var(--text-secondary);">${escapeHtml(historySignal?.reason || 'Iterative commit progression')}</td>
+          `;
+          rTbody.appendChild(tr);
+        });
+      } else {
+        rTbody.innerHTML = '<tr><td colspan="5" style="color:var(--text-secondary);">No public non-fork repositories found.</td></tr>';
+      }
+
+      // Monthly Commit Chart
+      const chartEl = document.getElementById('gh-timeline-chart');
+      chartEl.innerHTML = '';
+      const timeline = prov.timeline || [];
+      if (timeline.length > 0) {
+        const maxCommits = Math.max(...timeline.map(t => t.commits), 1);
+        timeline.forEach(t => {
+          const col = document.createElement('div');
+          col.className = 'timeline-col';
+          const heightPct = Math.max(10, (t.commits / maxCommits) * 100);
+          col.innerHTML = `
+            <span class="timeline-count">${t.commits}</span>
+            <div class="timeline-bar" style="height: ${heightPct}%;"></div>
+            <span class="timeline-month">${escapeHtml(t.month)}</span>
+          `;
+          chartEl.appendChild(col);
+        });
+      } else {
+        document.getElementById('gh-chart-container').style.display = 'none';
+      }
+    }
+
+    // 9. Lazy Load: Roadmap
+    async function loadRoadmap(data, hpw = 8, weeks = 12) {
+      try {
+        const payload = {
+          readiness_gaps: data.readiness?.skillset_gap || [],
+          company_id: data.company?.company_id || (companySelect.value ? parseInt(companySelect.value) : 4),
+          missing_jd_skills: data.match?.missing_skills || [],
+          ats_findings: data.ats?.findings || [],
+          provenance_warnings: state.provenance?.warnings || [],
+          hours_per_week: hpw,
+          weeks: weeks
+        };
+
+        const resp = await fetch('/roadmap', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (resp.ok) {
+          const rm = await resp.json();
+          state.roadmap = rm;
+          setStep(5, 'done');
+          renderRoadmapTab(rm);
+        } else {
+          setStep(5, 'done');
+        }
+      } catch (err) {
+        console.error('Roadmap fetch failed:', err);
+        setStep(5, 'done');
+      } finally {
+        // When both lazy steps done, hide progress card
+        setTimeout(() => progressCard.classList.remove('visible'), 500);
+      }
+    }
+
+    function renderRoadmapTab(rm) {
+      document.getElementById('roadmap-summary-text').textContent = rm.summary || 'A structured plan allocating your study hours to advance readiness score.';
+
+      // Resume fixes banner
+      const rfCard = document.getElementById('roadmap-resume-fixes-card');
+      const rfList = document.getElementById('roadmap-resume-fixes-list');
+      rfList.innerHTML = '';
+      if (rm.resume_fixes && rm.resume_fixes.length > 0) {
+        rfCard.style.display = 'block';
+        rm.resume_fixes.forEach(f => {
+          const li = document.createElement('li');
+          li.textContent = f;
+          rfList.appendChild(li);
+        });
+      } else {
+        rfCard.style.display = 'none';
+      }
+
+      // GitHub fixes banner
+      const gfCard = document.getElementById('roadmap-github-fixes-card');
+      const gfList = document.getElementById('roadmap-github-fixes-list');
+      gfList.innerHTML = '';
+      if (rm.github_fixes && rm.github_fixes.length > 0) {
+        gfCard.style.display = 'block';
+        rm.github_fixes.forEach(w => {
+          const li = document.createElement('li');
+          li.textContent = w;
+          gfList.appendChild(li);
+        });
+      } else {
+        gfCard.style.display = 'none';
+      }
+
+      // Week by week cards
+      const weeksList = document.getElementById('roadmap-weeks-list');
+      weeksList.innerHTML = '';
+      const savedChecks = state.roadmapDone && Object.keys(state.roadmapDone).length > 0
+        ? state.roadmapDone
+        : JSON.parse(localStorage.getItem('cairn_roadmap_checks') || '{}');
+
+      (rm.weeks || []).forEach(w => {
+        const wCard = document.createElement('div');
+        wCard.className = 'week-card';
+
+        let tasksHtml = '';
+        (w.tasks || []).forEach((t, tIdx) => {
+          const checkKey = `w${w.week}_t${tIdx}`;
+          const isChecked = savedChecks[checkKey] ? 'checked' : '';
+          const typeBadge = t.type === 'resume_fix' ? '<span class="chip chip-amber" style="padding:1px 6px;font-size:11px;">Resume Fix</span>' : (t.type === 'github_fix' ? '<span class="chip chip-green" style="padding:1px 6px;font-size:11px;">GitHub</span>' : '');
+          tasksHtml += `
+            <div class="task-item">
+              <input type="checkbox" class="task-checkbox" data-key="${checkKey}" ${isChecked} aria-label="Task completed">
+              <span class="task-text ${isChecked ? 'checked' : ''}">
+                ${typeBadge} <strong>[${escapeHtml(t.area)}]</strong> ${escapeHtml(t.task)}
+              </span>
+            </div>
+          `;
+        });
+
+        const p = w.proof_project || {};
+        const proofHtml = p.title ? `
+          <div class="proof-box">
+            <div class="proof-box-title">Proof Project: ${escapeHtml(p.title)}</div>
+            <div style="color:var(--text-secondary);">${escapeHtml(p.description || '')}</div>
+            <ul class="proof-box-deliverables">
+              ${(p.deliverables || []).map(d => `<li>${escapeHtml(d)}</li>`).join('')}
+            </ul>
+            ${p.resume_bullet ? `<div class="proof-box-resume">Resume bullet: "${escapeHtml(p.resume_bullet)}"</div>` : ''}
+          </div>
+        ` : '';
+
+        wCard.innerHTML = `
+          <div class="week-card-header">
+            <span class="week-badge">Week ${w.week}: ${escapeHtml(w.focus)}</span>
+            <span class="week-meta">${w.hours} hours · Projected Readiness: <strong>${w.projected_score} / 100</strong></span>
+          </div>
+          <div>${tasksHtml}</div>
+          ${proofHtml}
+        `;
+        weeksList.appendChild(wCard);
+      });
+
+      // Attach checkbox listeners to persist progress
+      weeksList.querySelectorAll('.task-checkbox').forEach(cb => {
+        cb.addEventListener('change', (e) => {
+          const key = e.target.getAttribute('data-key');
+          const checks = JSON.parse(localStorage.getItem('cairn_roadmap_checks') || '{}');
+          if (e.target.checked) {
+            checks[key] = true;
+            e.target.nextElementSibling.classList.add('checked');
+          } else {
+            delete checks[key];
+            e.target.nextElementSibling.classList.remove('checked');
+          }
+          localStorage.setItem('cairn_roadmap_checks', JSON.stringify(checks));
+          state.roadmapDone = checks;
+
+          if (state.analysisId && currentToken) {
+            fetch(`/me/analyses/${state.analysisId}/roadmap`, {
+              method: 'PATCH',
+              headers: {
+                'Authorization': `Bearer ${currentToken}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ roadmap_done: checks })
+            }).catch(err => console.warn('Roadmap sync error:', err));
+          }
+        });
+      });
+
+      // Also Learn
+      const alCard = document.getElementById('roadmap-also-learn-card');
+      const alList = document.getElementById('roadmap-also-learn-list');
+      alList.innerHTML = '';
+      if (rm.also_learn && rm.also_learn.length > 0) {
+        alCard.style.display = 'block';
+        rm.also_learn.forEach(item => {
+          const li = document.createElement('li');
+          li.innerHTML = `<strong>${escapeHtml(item.skill)}</strong>: ${escapeHtml(item.reason)}`;
+          alList.appendChild(li);
+        });
+      } else {
+        alCard.style.display = 'none';
+      }
+
+      // Assumptions
+      const assList = document.getElementById('roadmap-assumptions-list');
+      assList.innerHTML = '';
+      (rm.assumptions || []).forEach(a => {
+        const li = document.createElement('li');
+        li.textContent = a;
+        assList.appendChild(li);
+      });
+    }
+
+    // Roadmap update button
+    document.getElementById('btn-update-roadmap').addEventListener('click', () => {
+      const hpw = parseInt(document.getElementById('input-hpw').value) || 8;
+      const wks = parseInt(document.getElementById('input-weeks').value) || 12;
+      if (state.analysis) {
+        loadRoadmap(state.analysis, hpw, wks);
+      }
+    });
+
+    // Roadmap Copy & Print
+    document.getElementById('btn-print-plan').addEventListener('click', () => window.print());
+    document.getElementById('btn-copy-plan').addEventListener('click', () => {
+      if (!state.roadmap) return;
+      let text = `CAIRN STUDY ROADMAP\n\n${state.roadmap.summary}\n\n`;
+      (state.roadmap.weeks || []).forEach(w => {
+        text += `WEEK ${w.week}: ${w.focus} (${w.hours} hrs) - Projected Readiness: ${w.projected_score}/100\n`;
+        (w.tasks || []).forEach(t => text += `  - [${t.area}] ${t.task}\n`);
+        if (w.proof_project && w.proof_project.title) {
+          text += `  Proof Project: ${w.proof_project.title}\n`;
+        }
+        text += '\n';
+      });
+      navigator.clipboard.writeText(text).then(() => {
+        const btn = document.getElementById('btn-copy-plan');
+        const orig = btn.textContent;
+        btn.textContent = 'Copied to clipboard!';
+        setTimeout(() => btn.textContent = orig, 2000);
+      });
+    });
+
+    // 10. Lazy Load: Social Profiles & Stats
+    async function loadSocialProfiles(socials) {
+      const grid = document.getElementById('profiles-grid');
+      const missingList = document.getElementById('missing-profiles-list');
+      grid.innerHTML = '';
+      missingList.innerHTML = '';
+
+      const detectedPlatforms = new Set();
+
+      if (socials && socials.length > 0) {
+        for (const s of socials) {
+          detectedPlatforms.add(s.platform.toLowerCase());
+          const card = document.createElement('div');
+          card.className = 'card';
+          card.innerHTML = `
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+              <strong style="text-transform:capitalize;">${escapeHtml(s.platform)}</strong>
+              <span class="chip chip-green">Detected</span>
+            </div>
+            <div style="font-size:14px;margin-bottom:6px;">
+              <a href="${escapeHtml(s.url)}" target="_blank" rel="noopener" style="color:var(--accent);font-weight:500;">
+                @${escapeHtml(s.username)} ↗
+              </a>
+            </div>
+            <div id="stat-${escapeHtml(s.platform)}-${escapeHtml(s.username)}" style="font-size:13px;color:var(--text-secondary);">
+              ${s.platform === 'linkedin' ? 'Link found. Cairn does not read LinkedIn data.' : 'Fetching live stats...'}
+            </div>
+          `;
+          grid.appendChild(card);
+
+          // If not linkedin, fetch stats
+          if (s.platform !== 'linkedin') {
+            fetch('/socials/stats', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ platform: s.platform, username: s.username })
+            })
+            .then(r => r.json())
+            .then(st => {
+              const el = document.getElementById(`stat-${s.platform}-${s.username}`);
+              if (!el) return;
+              if (st.available && st.stats) {
+                if (s.platform === 'github') {
+                  el.textContent = `${st.stats.public_repos || 0} public repos · ${st.stats.followers || 0} followers`;
+                } else if (s.platform === 'leetcode') {
+                  el.textContent = `${st.stats.total_solved || 0} problems solved`;
+                } else if (s.platform === 'codeforces') {
+                  el.textContent = `Rating: ${st.stats.rating || 'Unrated'} (${st.stats.rank || 'N/A'})`;
+                } else {
+                  el.textContent = 'Profile confirmed active.';
+                }
+              } else {
+                el.textContent = st.reason || 'Public statistics not available.';
+              }
+            })
+            .catch(() => {});
+          }
+        }
+      } else {
+        grid.innerHTML = '<p style="font-size:14px;color:var(--text-secondary);grid-column:1/-1;">No public developer profiles detected in your resume.</p>';
+      }
+
+      // Check missing
+      const standard = [
+        { platform: 'github', name: 'GitHub', tip: 'Essential for technical roles to show real code and project progression.' },
+        { platform: 'leetcode', name: 'LeetCode', tip: 'Helpful for showing active problem solving practice and contest rating.' },
+        { platform: 'linkedin', name: 'LinkedIn', tip: 'Enables quick recruiter verification of employment dates and education.' }
+      ];
+
+      standard.forEach(std => {
+        if (!detectedPlatforms.has(std.platform)) {
+          const li = document.createElement('li');
+          li.innerHTML = `<strong>${std.name}</strong>: No ${std.name} link found on your resume. ${std.tip}`;
+          missingList.appendChild(li);
+        }
+      });
+    }
+
+    // 11. Tab Switching Logic
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabPanes = document.querySelectorAll('.tab-pane');
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => switchTab(btn.getAttribute('data-tab')));
+    });
+
+    // Summary cards click switching
+    document.querySelectorAll('.summary-card').forEach(card => {
+      card.addEventListener('click', () => switchTab(card.getAttribute('data-tab')));
+      card.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); switchTab(card.getAttribute('data-tab')); }
+      });
+    });
+
+    function switchTab(tabId) {
+      tabBtns.forEach(btn => {
+        const isActive = btn.getAttribute('data-tab') === tabId;
+        btn.classList.toggle('active', isActive);
+        btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+
+      tabPanes.forEach(pane => {
+        pane.classList.toggle('active', pane.id === `pane-${tabId}`);
+      });
+    }
+
+    // 12. Collapse / Edit & Re-run
+    btnEditInputs.addEventListener('click', () => {
+      inputsPanel.style.display = 'block';
+      collapsedSummary.style.display = 'none';
+      inputsPanel.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    btnNewAnalysis.addEventListener('click', () => {
+      state.resumeFile = null;
+      state.jdFile = null;
+      state.analysis = null;
+      resumeInput.value = '';
+      jdFileInput.value = '';
+      jdTextarea.value = '';
+      githubInput.value = '';
+      companySelect.value = '';
+      resumeStatusText.innerHTML = 'Drag and drop your resume or <strong>Browse files</strong>';
+      jdStatusText.innerHTML = 'Drag and drop job document or <strong>Browse</strong> (.pdf, .docx, .txt)';
+      resultsWrapper.style.display = 'none';
+      collapsedSummary.style.display = 'none';
+      inputsPanel.style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    btnChangeCompany.addEventListener('click', () => {
+      inputsPanel.style.display = 'block';
+      collapsedSummary.style.display = 'none';
+      companySelect.focus();
+    });
+
+    // Helper: Escape HTML
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    // Init on load
+    initAuth();
+    loadCompanies().then(() => {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('sample') === 'true') {
+        loadSample();
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,4 +1,6 @@
 .env
+.env.*
+!.env.example
 .venv/
 __pycache__/
 *.pyc
@@ -6,3 +8,8 @@ __pycache__/
 profiles/
 recordings/
 verification_captures/
+*.tmp
+*.zip
+seed/
+
+
