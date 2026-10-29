@@ -52,7 +52,7 @@ def main():
         sys.exit(1)
 
     data_dir = os.path.join(project_root, "data")
-    if not os.path.exists(data_dir):
+    if not os.path.exists(os.path.join(data_dir, "company_json_rows__1_.csv")):
         data_dir = os.path.join(project_root, "seed")
 
     print("=== Radix v3 Remote Supabase Verification ===")

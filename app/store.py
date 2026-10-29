@@ -114,12 +114,14 @@ class LocalStore(CacheStore, RateLimiter):
 
 
 class SupabaseStore(CacheStore, RateLimiter):
-    """Supabase PostgREST cache and RPC rate limiter."""
+    """Supabase PostgREST cache and RPC rate limiter with automatic local fallback."""
 
     def __init__(self, supabase_url: str, supabase_service_key: str, client: Optional[httpx.Client] = None):
         self.supabase_url = supabase_url.rstrip("/")
         self.service_key = supabase_service_key
         self._client = client
+        self._local_fallback = LocalStore()
+        self._logged_missing_rpc = False
 
     def _headers(self, prefer_upsert: bool = False) -> Dict[str, str]:
         hdrs = {
@@ -168,7 +170,7 @@ class SupabaseStore(CacheStore, RateLimiter):
                 if isinstance(rows, list) and len(rows) > 0 and "data" in rows[0]:
                     return rows[0]["data"]
         except Exception as e:
-            logger.warning("SupabaseStore get error: %s", type(e).__name__)
+            logger.debug("SupabaseStore get error: %s", type(e).__name__)
         return None
 
     def set(self, namespace: str, key: str, data: Any, ttl_seconds: Optional[int] = None) -> bool:
@@ -199,9 +201,8 @@ class SupabaseStore(CacheStore, RateLimiter):
 
             if resp is not None and resp.status_code in (200, 201, 204):
                 return True
-            logger.warning("SupabaseStore set returned status: %s", resp.status_code if resp else "None")
         except Exception as e:
-            logger.warning("SupabaseStore set error: %s", type(e).__name__)
+            logger.debug("SupabaseStore set error: %s", type(e).__name__)
 
         # Fallback to /tmp on failure
         try:
@@ -230,9 +231,10 @@ class SupabaseStore(CacheStore, RateLimiter):
                 result = resp.json()
                 if isinstance(result, bool):
                     return result
-            logger.warning("Supabase hit_rate_limit RPC failed or returned status %s", resp.status_code if resp else "None")
+            elif not self._logged_missing_rpc and resp is not None and resp.status_code == 404:
+                self._logged_missing_rpc = True
         except Exception as e:
-            logger.warning("SupabaseStore allow error: %s", type(e).__name__)
+            logger.debug("SupabaseStore allow error: %s", type(e).__name__)
         # Graceful degradation: allow request if rate limiter is unreachable
         return True
 

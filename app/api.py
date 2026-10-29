@@ -26,8 +26,8 @@ from . import me
 from .me import get_user_store
 
 MAX_FILE_SIZE = 4 * 1024 * 1024  # 4 MB
-ALLOWED_RESUME_EXTS = (".pdf", ".docx", ".txt")
-ALLOWED_JD_EXTS = (".pdf", ".docx", ".txt")
+ALLOWED_RESUME_EXTS = (".pdf", ".docx", ".doc", ".txt")
+ALLOWED_JD_EXTS = (".pdf", ".docx", ".doc", ".txt")
 
 ALLOWED_RESUME_MIMES = {
     "application/pdf",
@@ -72,6 +72,8 @@ async def handle_api_prefix(request: Request, call_next):
         if not subpath.startswith("/"):
             subpath = "/" + subpath
         request.scope["path"] = subpath
+    elif path == "/api":
+        request.scope["path"] = "/"
     return await call_next(request)
 
 
@@ -252,7 +254,7 @@ async def analyze(
     save: Optional[bool] = Form(False),
     jd_file: Optional[UploadFile] = File(None),
     jd_text: Optional[str] = Form(None),
-    company_id: Optional[int] = Form(None),
+    company_id: Optional[str] = Form(None),
     github_username: Optional[str] = Form(None)
 ):
     """
@@ -265,281 +267,309 @@ async def analyze(
     6. Social profile extraction
     7. Full response with per-step timings
     """
-    overall_start = time.perf_counter()
-    timings = {}
-
-    user = optional_user(request)
-    check_rate_limit(request, "analyze", user=user, guest_limit=8, user_limit=20)
-
-    # --- VALIDATION ---
-    saved_resume_row = None
-    if resume is not None and resume.filename:
-        resume_name = resume.filename
-        if not (resume_name.lower().endswith(ALLOWED_RESUME_EXTS) or resume.content_type in ALLOWED_RESUME_MIMES):
-            raise HTTPException(
-                status_code=415,
-                detail="Unsupported file format for resume. Please upload a PDF (.pdf) or DOCX (.docx) file."
-            )
-
-        resume_bytes = await resume.read()
-        if len(resume_bytes) > MAX_FILE_SIZE:
-            raise HTTPException(
-                status_code=413,
-                detail=f"File size exceeds the 4 MB limit ({len(resume_bytes)/(1024*1024):.1f} MB uploaded). Please upload a smaller file."
-            )
-        if len(resume_bytes) == 0:
-            raise HTTPException(status_code=400, detail="Uploaded resume file is empty.")
-    elif resume_id:
-        if not user:
-            raise HTTPException(status_code=401, detail="Authentication required to use saved resumes")
-        store = get_user_store()
-        saved_resume_row = store.get_resume(user["id"], resume_id)
-        if not saved_resume_row:
-            raise HTTPException(status_code=404, detail="Saved resume not found")
-        resume_name = saved_resume_row.get("file_name", "saved_resume.pdf")
-        saved_extracted = saved_resume_row.get("extracted", {})
-        resume_text_cached = saved_extracted.get("_text", "")
-        resume_bytes = resume_text_cached.encode("utf-8")
-    else:
-        raise HTTPException(status_code=422, detail="Please upload a resume file or select a saved resume.")
-
-    has_jd_file = jd_file is not None and bool(jd_file.filename)
-    has_jd_text = bool(jd_text and jd_text.strip())
-
-    if not has_jd_file and not has_jd_text:
-        raise HTTPException(
-            status_code=422,
-            detail="Please provide a job description as a file or text."
-        )
-
-    if has_jd_file:
-        jd_name = jd_file.filename or "job_description.pdf"
-        if not (jd_name.lower().endswith(ALLOWED_JD_EXTS) or jd_file.content_type in ALLOWED_JD_MIMES):
-            raise HTTPException(
-                status_code=415,
-                detail="Unsupported file format for job description. Please upload a PDF (.pdf), DOCX (.docx), or text (.txt) file."
-            )
-        jd_bytes = await jd_file.read()
-        if len(jd_bytes) > MAX_FILE_SIZE:
-            raise HTTPException(
-                status_code=413,
-                detail=f"Job description exceeds the 4 MB limit ({len(jd_bytes)/(1024*1024):.1f} MB uploaded). Please upload a smaller file."
-            )
-    else:
-        jd_name = "pasted_jd.txt"
-        jd_bytes = jd_text.strip().encode("utf-8")
-
-    # --- STEP 1: EXTRACTION ---
-    t0 = time.perf_counter()
-    extract_res = {}
-    resume_data = {}
-    jd_data = {}
-    resume_text = ""
-    jd_text_str = ""
-
     try:
-        if saved_resume_row and saved_resume_row.get("extracted"):
-            resume_data = saved_resume_row["extracted"]
-            resume_text = resume_data.get("_text", "")
-        else:
-            resume_data = X.extract(resume_bytes, "resume", resume_name, use_cache=True)
-            resume_text = X.read_text(resume_bytes, resume_name)
-            resume_data["_text"] = resume_text
+        overall_start = time.perf_counter()
+        timings = {}
 
-        jd_data = X.extract(jd_bytes, "jd", jd_name, use_cache=True)
-        jd_text_str = X.read_text(jd_bytes, jd_name)
+        user = optional_user(request)
+        check_rate_limit(request, "analyze", user=user, guest_limit=8, user_limit=20)
 
-        extract_res = {
-            "resume": {
-                "source_file": resume_data.get("source_file", resume_name),
-                "role": resume_data.get("role", ""),
-                "skills": resume_data.get("skills", []),
-                "skills_count": len(resume_data.get("skills", [])),
-                "raw_text": resume_text
-            },
-            "jd": {
-                "source_file": jd_data.get("source_file", jd_name),
-                "company": jd_data.get("company", ""),
-                "role": jd_data.get("role", ""),
-                "skills": jd_data.get("skills", []),
-                "skills_count": len(jd_data.get("skills", []))
-            }
-        }
-    except Exception as e:
-        extract_res = {"error": f"Extraction failed: {str(e)}"}
-    timings["extract"] = round(time.perf_counter() - t0, 3)
+        # Parse company_id safely
+        cid_int: Optional[int] = None
+        if company_id is not None and str(company_id).strip():
+            try:
+                cid_int = int(str(company_id).strip())
+            except (ValueError, TypeError):
+                cid_int = None
 
-    # --- STEP 2: SKILL MATCH ---
-    t0 = time.perf_counter()
-    match_res = {}
-    try:
-        if "error" in extract_res:
-            match_res = {"error": "Skipped due to extraction error"}
-        else:
-            cand_skills = resume_data.get("skills", [])
-            m_out = match(cand_skills, jd_data)
-            
-            # Enrich missing skills with why they matter
-            missing_enriched = []
-            for item in m_out.get("missing_skills", []):
-                why = item.get("why_needed") or (
-                    f"Required for {item.get('category_code', 'core')} competencies specified in the role description."
+        # --- VALIDATION ---
+        saved_resume_row = None
+        if resume is not None and resume.filename:
+            resume_name = resume.filename
+            if not (resume_name.lower().endswith(ALLOWED_RESUME_EXTS) or resume.content_type in ALLOWED_RESUME_MIMES):
+                raise HTTPException(
+                    status_code=415,
+                    detail="Unsupported file format for resume. Please upload a PDF (.pdf), Word (.docx, .doc), or text (.txt) file."
                 )
-                missing_enriched.append({
-                    "skill": item.get("skill"),
-                    "category_code": item.get("category_code"),
-                    "why_needed": why
-                })
 
-            match_res = {
-                "match_score": m_out.get("match_score", 0),
-                "matched_count": len(m_out.get("matched_skills", [])),
-                "missing_count": len(missing_enriched),
-                "matched_skills": m_out.get("matched_skills", []),
-                "missing_skills": missing_enriched
-            }
-    except Exception as e:
-        match_res = {"error": f"Skill matching failed: {str(e)}"}
-    timings["match"] = round(time.perf_counter() - t0, 3)
-
-    # --- STEP 3: COMPANY DETECTION & RESOLUTION ---
-    t0 = time.perf_counter()
-    company_res = {}
-    resolved_cid = None
-    resolved_name = None
-
-    try:
-        all_comps = INSIGHTS.get_all_companies()
-        if company_id is not None and int(company_id) in all_comps:
-            resolved_cid = int(company_id)
-            resolved_name = all_comps[resolved_cid]["name"]
-            company_res = {
-                "company_id": resolved_cid,
-                "company": resolved_name,
-                "auto_detected": False
-            }
+            resume_bytes = await resume.read()
+            if len(resume_bytes) > MAX_FILE_SIZE:
+                raise HTTPException(
+                    status_code=413,
+                    detail=f"File size exceeds the 4 MB limit ({len(resume_bytes)/(1024*1024):.1f} MB uploaded). Please upload a smaller file."
+                )
+            if len(resume_bytes) == 0:
+                raise HTTPException(status_code=400, detail="Uploaded resume file is empty.")
+        elif resume_id:
+            if not user:
+                raise HTTPException(status_code=401, detail="Authentication required to use saved resumes")
+            store = get_user_store()
+            saved_resume_row = store.get_resume(user["id"], resume_id)
+            if not saved_resume_row:
+                raise HTTPException(status_code=404, detail="Saved resume not found")
+            resume_name = saved_resume_row.get("file_name", "saved_resume.pdf")
+            saved_extracted = saved_resume_row.get("extracted") or {}
+            resume_text_cached = saved_extracted.get("_text", "")
+            resume_bytes = resume_text_cached.encode("utf-8")
         else:
-            # Fuzzy-match JD's company name against 113 companies using rapidfuzz >= 88
-            jd_comp = jd_data.get("company", "") if "error" not in extract_res else ""
-            auto_cid, auto_name, matched_ok = INSIGHTS.find_matching_company(jd_comp, threshold=88)
-            if matched_ok:
-                resolved_cid = auto_cid
-                resolved_name = auto_name
+            raise HTTPException(status_code=422, detail="Please upload a resume file or select a saved resume.")
+
+        has_jd_file = jd_file is not None and bool(jd_file.filename)
+        has_jd_text = bool(jd_text and jd_text.strip())
+
+        if not has_jd_file and not has_jd_text:
+            raise HTTPException(
+                status_code=422,
+                detail="Please provide a job description as a file or text."
+            )
+
+        if has_jd_file:
+            jd_name = jd_file.filename or "job_description.pdf"
+            if not (jd_name.lower().endswith(ALLOWED_JD_EXTS) or jd_file.content_type in ALLOWED_JD_MIMES):
+                raise HTTPException(
+                    status_code=415,
+                    detail="Unsupported file format for job description. Please upload a PDF (.pdf), DOCX (.docx), or text (.txt) file."
+                )
+            jd_bytes = await jd_file.read()
+            if len(jd_bytes) > MAX_FILE_SIZE:
+                raise HTTPException(
+                    status_code=413,
+                    detail=f"Job description exceeds the 4 MB limit ({len(jd_bytes)/(1024*1024):.1f} MB uploaded). Please upload a smaller file."
+                )
+        else:
+            jd_name = "pasted_jd.txt"
+            jd_bytes = jd_text.strip().encode("utf-8")
+
+        # --- STEP 1: EXTRACTION ---
+        t0 = time.perf_counter()
+        extract_res = {}
+        resume_data = {}
+        jd_data = {}
+        resume_text = ""
+        jd_text_str = ""
+
+        try:
+            if saved_resume_row and saved_resume_row.get("extracted"):
+                resume_data = saved_resume_row["extracted"]
+                resume_text = resume_data.get("_text", "")
+            else:
+                resume_data = X.extract(resume_bytes, "resume", resume_name, use_cache=True)
+                resume_text = X.read_text(resume_bytes, resume_name)
+                resume_data["_text"] = resume_text
+
+            jd_data = X.extract(jd_bytes, "jd", jd_name, use_cache=True)
+            jd_text_str = X.read_text(jd_bytes, jd_name)
+
+            extract_res = {
+                "resume": {
+                    "source_file": resume_data.get("source_file", resume_name),
+                    "role": resume_data.get("role", ""),
+                    "skills": resume_data.get("skills", []),
+                    "skills_count": len(resume_data.get("skills", [])),
+                    "raw_text": resume_text
+                },
+                "jd": {
+                    "source_file": jd_data.get("source_file", jd_name),
+                    "company": jd_data.get("company", ""),
+                    "role": jd_data.get("role", ""),
+                    "skills": jd_data.get("skills", []),
+                    "skills_count": len(jd_data.get("skills", []))
+                }
+            }
+        except Exception as e:
+            extract_res = {"error": f"Extraction failed: {str(e)}"}
+        timings["extract"] = round(time.perf_counter() - t0, 3)
+
+        # --- STEP 2: SKILL MATCH ---
+        t0 = time.perf_counter()
+        match_res = {}
+        try:
+            if "error" in extract_res:
+                match_res = {"error": "Skipped due to extraction error"}
+            else:
+                cand_skills = resume_data.get("skills", [])
+                m_out = match(cand_skills, jd_data)
+
+                # Enrich missing skills with why they matter
+                missing_enriched = []
+                for item in m_out.get("missing_skills", []):
+                    why = item.get("why_needed") or (
+                        f"Required for {item.get('category_code', 'core')} competencies specified in the role description."
+                    )
+                    missing_enriched.append({
+                        "skill": item.get("skill"),
+                        "category_code": item.get("category_code"),
+                        "why_needed": why
+                    })
+
+                match_res = {
+                    "match_score": m_out.get("match_score", 0),
+                    "matched_count": len(m_out.get("matched_skills", [])),
+                    "missing_count": len(missing_enriched),
+                    "matched_skills": m_out.get("matched_skills", []),
+                    "missing_skills": missing_enriched
+                }
+        except Exception as e:
+            match_res = {"error": f"Skill matching failed: {str(e)}"}
+        timings["match"] = round(time.perf_counter() - t0, 3)
+
+        # --- STEP 3: COMPANY DETECTION & RESOLUTION ---
+        t0 = time.perf_counter()
+        company_res = {}
+        resolved_cid = None
+        resolved_name = None
+
+        try:
+            all_comps = INSIGHTS.get_all_companies()
+            if cid_int is not None and cid_int in all_comps:
+                resolved_cid = cid_int
+                resolved_name = all_comps[resolved_cid]["name"]
                 company_res = {
                     "company_id": resolved_cid,
                     "company": resolved_name,
-                    "auto_detected": True
-                }
-            else:
-                company_res = {
-                    "company_id": None,
-                    "company": None,
                     "auto_detected": False
                 }
-    except Exception as e:
-        company_res = {"error": f"Company resolution failed: {str(e)}"}
-    timings["company"] = round(time.perf_counter() - t0, 3)
-
-    # --- STEP 4: TALENT READINESS & WATERFALL & NEXT-BEST-SKILLS ---
-    t0 = time.perf_counter()
-    readiness_res = None
-    try:
-        if resolved_cid is not None and "error" not in extract_res:
-            cand_skills = resume_data.get("skills", [])
-            cand_lvls = candidate_levels(cand_skills)
-            tc = talent_check(cand_skills, resolved_cid, resolved_name)
-            wf = INSIGHTS.compute_waterfall(cand_lvls, resolved_cid)
-            next_best = INSIGHTS.compute_next_best_skills(cand_lvls, resolved_cid, top_n=5)
-
-            readiness_res = {
-                "readiness_score": tc["readiness_score"],
-                "company_id": resolved_cid,
-                "company": resolved_name,
-                "skillset_gap": tc["skillset_gap"],
-                "waterfall": wf["items"],
-                "next_best_skills": next_best
-            }
-        else:
-            # Readiness is null when no company is identified/specified so UI shows a company picker
-            readiness_res = None
-    except Exception as e:
-        readiness_res = {"error": f"Readiness evaluation failed: {str(e)}"}
-    timings["readiness"] = round(time.perf_counter() - t0, 3)
-
-    # --- STEP 5: ATS RISK & CHEAT DETECTION ---
-    t0 = time.perf_counter()
-    ats_res = {}
-    try:
-        cand_skills = resume_data.get("skills", []) if "error" not in extract_res else []
-        ats_res = ats_check(
-            file_bytes=resume_bytes,
-            filename=resume_name,
-            text=resume_text,
-            jd_text=jd_text_str,
-            skills_extracted=cand_skills
-        )
-    except Exception as e:
-        ats_res = {"error": f"ATS check failed: {str(e)}"}
-    timings["ats"] = round(time.perf_counter() - t0, 3)
-
-    # --- STEP 6: SOCIAL PROFILE EXTRACTION ---
-    t0 = time.perf_counter()
-    socials_res = []
-    github_detected = None
-    try:
-        socials_res = extract_socials(resume_text, file_bytes=resume_bytes, filename=resume_name)
-        if github_username and github_username.strip():
-            gh_clean = github_username.strip().lstrip("@")
-            if not any(s.get("platform") == "github" and s.get("username").lower() == gh_clean.lower() for s in socials_res):
-                socials_res.append({
-                    "platform": "github",
-                    "username": gh_clean,
-                    "url": f"https://github.com/{gh_clean}",
-                    "source": "input",
-                    "confidence": "high"
-                })
-        # Extract detected GitHub username if available
-        for s in socials_res:
-            if s.get("platform") == "github" and s.get("username"):
-                github_detected = s.get("username")
-                break
-    except Exception as e:
-        socials_res = {"error": f"Social extraction failed: {str(e)}"}
-    timings["socials"] = round(time.perf_counter() - t0, 3)
-
-    # --- STEP 7: RESPONSE AGGREGATION & TIMINGS ---
-    timings["total"] = round(time.perf_counter() - overall_start, 3)
-
-    response_data = {
-        "extract": extract_res,
-        "match": match_res,
-        "company": company_res,
-        "readiness": readiness_res,
-        "ats": ats_res,
-        "socials": socials_res,
-        "github_username_detected": github_detected,
-        "timings": timings
-    }
-
-    if save and user:
-        try:
-            store = get_user_store()
-            created_analysis = store.create_analysis(
-                user_id=user["id"],
-                resume_id=saved_resume_row["id"] if saved_resume_row else (resume_id if resume_id else None),
-                jd_title=extract_res.get("jd", {}).get("role") or "",
-                jd_company=company_res.get("company_name") or extract_res.get("jd", {}).get("company") or "",
-                jd=extract_res.get("jd", {}),
-                result=response_data,
-                match_score=match_res.get("match_score"),
-                readiness_score=readiness_res.get("overall_score"),
-                ats_score=ats_res.get("score")
-            )
-            response_data["analysis_id"] = created_analysis.get("id")
+            else:
+                # Fuzzy-match JD's company name against 113 companies using rapidfuzz >= 88
+                jd_comp = jd_data.get("company", "") if "error" not in extract_res else ""
+                auto_cid, auto_name, matched_ok = INSIGHTS.find_matching_company(jd_comp, threshold=88)
+                if matched_ok:
+                    resolved_cid = auto_cid
+                    resolved_name = auto_name
+                    company_res = {
+                        "company_id": resolved_cid,
+                        "company": resolved_name,
+                        "auto_detected": True
+                    }
+                else:
+                    company_res = {
+                        "company_id": None,
+                        "company": None,
+                        "auto_detected": False
+                    }
         except Exception as e:
-            pass
+            company_res = {"error": f"Company resolution failed: {str(e)}"}
+        timings["company"] = round(time.perf_counter() - t0, 3)
 
-    return response_data
+        # --- STEP 4: TALENT READINESS & WATERFALL & NEXT-BEST-SKILLS ---
+        t0 = time.perf_counter()
+        readiness_res = None
+        try:
+            if resolved_cid is not None and "error" not in extract_res:
+                cand_skills = resume_data.get("skills", [])
+                cand_lvls = candidate_levels(cand_skills)
+                tc = talent_check(cand_skills, resolved_cid, resolved_name)
+                wf = INSIGHTS.compute_waterfall(cand_lvls, resolved_cid)
+                next_best = INSIGHTS.compute_next_best_skills(cand_lvls, resolved_cid, top_n=5)
+
+                readiness_res = {
+                    "readiness_score": tc["readiness_score"],
+                    "company_id": resolved_cid,
+                    "company": resolved_name,
+                    "skillset_gap": tc["skillset_gap"],
+                    "waterfall": wf["items"],
+                    "next_best_skills": next_best
+                }
+            else:
+                # Readiness is null when no company is identified/specified so UI shows a company picker
+                readiness_res = None
+        except Exception as e:
+            readiness_res = {"error": f"Readiness evaluation failed: {str(e)}"}
+        timings["readiness"] = round(time.perf_counter() - t0, 3)
+
+        # --- STEP 5: ATS RISK & CHEAT DETECTION ---
+        t0 = time.perf_counter()
+        ats_res = {}
+        try:
+            cand_skills = resume_data.get("skills", []) if "error" not in extract_res else []
+            ats_res = ats_check(
+                file_bytes=resume_bytes,
+                filename=resume_name,
+                text=resume_text,
+                jd_text=jd_text_str,
+                skills_extracted=cand_skills
+            )
+        except Exception as e:
+            ats_res = {"error": f"ATS check failed: {str(e)}"}
+        timings["ats"] = round(time.perf_counter() - t0, 3)
+
+        # --- STEP 6: SOCIAL PROFILE EXTRACTION ---
+        t0 = time.perf_counter()
+        socials_res = []
+        github_detected = None
+        try:
+            socials_res = extract_socials(resume_text, file_bytes=resume_bytes, filename=resume_name)
+            if github_username and github_username.strip():
+                gh_clean = github_username.strip().lstrip("@")
+                if not any(s.get("platform") == "github" and s.get("username").lower() == gh_clean.lower() for s in socials_res):
+                    socials_res.append({
+                        "platform": "github",
+                        "username": gh_clean,
+                        "url": f"https://github.com/{gh_clean}",
+                        "source": "input",
+                        "confidence": "high"
+                    })
+            # Extract detected GitHub username if available
+            for s in socials_res:
+                if s.get("platform") == "github" and s.get("username"):
+                    github_detected = s.get("username")
+                    break
+        except Exception as e:
+            socials_res = {"error": f"Social extraction failed: {str(e)}"}
+        timings["socials"] = round(time.perf_counter() - t0, 3)
+
+        # --- STEP 7: RESPONSE AGGREGATION & TIMINGS ---
+        timings["total"] = round(time.perf_counter() - overall_start, 3)
+
+        response_data = {
+            "extract": extract_res,
+            "match": match_res,
+            "company": company_res,
+            "readiness": readiness_res,
+            "ats": ats_res,
+            "socials": socials_res,
+            "github_username_detected": github_detected,
+            "timings": timings
+        }
+
+        if save and user:
+            try:
+                store = get_user_store()
+                r_score = None
+                if isinstance(readiness_res, dict):
+                    r_score = readiness_res.get("readiness_score") or readiness_res.get("overall_score")
+                ats_s = None
+                if isinstance(ats_res, dict):
+                    ats_s = ats_res.get("risk_score") or ats_res.get("score")
+                m_score = None
+                if isinstance(match_res, dict):
+                    m_score = match_res.get("match_score")
+
+                created_analysis = store.create_analysis(
+                    user_id=user["id"],
+                    resume_id=saved_resume_row["id"] if saved_resume_row else (resume_id if resume_id else None),
+                    jd_title=extract_res.get("jd", {}).get("role") or "",
+                    jd_company=company_res.get("company") or company_res.get("company_name") or extract_res.get("jd", {}).get("company") or "",
+                    jd=extract_res.get("jd", {}),
+                    result=response_data,
+                    match_score=m_score,
+                    readiness_score=r_score,
+                    ats_score=ats_s
+                )
+                response_data["analysis_id"] = created_analysis.get("id")
+            except Exception as e:
+                pass
+
+        return response_data
+    except HTTPException:
+        raise
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Analysis failed: {str(e)}"
+        )
 
 
 from fastapi.staticfiles import StaticFiles

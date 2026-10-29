@@ -14,10 +14,15 @@ def required(company_id: int):
 
 def candidate_levels(skills):
     pts = {}
-    for s in skills:
-        code = s.get("category_code")
+    for s in (skills or []):
+        if isinstance(s, dict):
+            code = s.get("category_code")
+            conf = s.get("confidence")
+        else:
+            code = None
+            conf = None
         if code and code != "OTHER":
-            pts[code] = pts.get(code, 0) + PTS.get(s.get("confidence"), 1)
+            pts[code] = pts.get(code, 0) + PTS.get(conf, 1)
     return {c: min(10, round(2 + 1.8 * p)) for c, p in pts.items()}
 
 def talent_check(profile_or_skills, company_id: int, company_name: str = ""):

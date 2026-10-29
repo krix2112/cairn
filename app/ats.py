@@ -3,7 +3,11 @@ import re
 import unicodedata
 from typing import Dict, List, Optional, Tuple, Any
 
-import pdfplumber
+try:
+    import pdfplumber
+except ImportError:
+    pdfplumber = None
+
 from pypdf import PdfReader
 from docx import Document
 
@@ -53,6 +57,8 @@ def _is_color_white(color) -> bool:
 
 def _check_hidden_pdf(pdf_bytes: bytes) -> List[Dict[str, Any]]:
     findings = []
+    if not pdfplumber or not pdf_bytes:
+        return findings
     white_chars = []
     tiny_chars = []
     oob_chars = []
@@ -132,6 +138,7 @@ def _check_hidden_docx(docx_bytes: bytes) -> List[Dict[str, Any]]:
 
     try:
         doc = Document(io.BytesIO(docx_bytes))
+        # Scan main paragraphs
         for p in doc.paragraphs:
             for r in p.runs:
                 txt = r.text
@@ -159,6 +166,30 @@ def _check_hidden_docx(docx_bytes: bytes) -> List[Dict[str, Any]]:
                             tiny_runs.append(txt)
                     except ValueError:
                         pass
+
+        # Scan tables for hidden formatting
+        for table in doc.tables:
+            for row in table.rows:
+                for cell in row.cells:
+                    for p in cell.paragraphs:
+                        for r in p.runs:
+                            txt = r.text
+                            if not txt or not txt.strip():
+                                continue
+                            if r._element.xpath('.//w:vanish'):
+                                vanish_runs.append(txt)
+                            color_elem = r._element.xpath('.//w:color')
+                            if color_elem:
+                                val = color_elem[0].get('{http://schemas.openxmlformats.org/wordprocessingml/2006/main}val', '')
+                                if val.upper() in ('FFFFFF', 'FEFEFE', 'FDFDFD', 'FAFAFA', 'F5F5F5'):
+                                    white_runs.append(txt)
+                            sz_elem = r._element.xpath('.//w:sz')
+                            if sz_elem:
+                                try:
+                                    if int(sz_elem[0].get('{http://schemas.openxmlformats.org/wordprocessingml/2006/main}val', '20')) < 10:
+                                        tiny_runs.append(txt)
+                                except ValueError:
+                                    pass
     except Exception:
         pass
 
@@ -362,7 +393,7 @@ def _check_unsupported_claims(text: str, skills_extracted: List[Dict[str, Any]])
     return findings
 
 
-def _check_parseability(text: str, pdf_bytes: Optional[bytes] = None) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
+def _check_parseability(text: str, pdf_bytes: Optional[bytes] = None, docx_bytes: Optional[bytes] = None) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
     findings = []
     stats = {}
 
@@ -392,12 +423,23 @@ def _check_parseability(text: str, pdf_bytes: Optional[bytes] = None) -> Tuple[L
     has_tables = False
     if pdf_bytes:
         try:
-            with pdfplumber.open(io.BytesIO(pdf_bytes)) as pdf:
-                page_count = len(pdf.pages)
-                for page in pdf.pages:
-                    tables = page.find_tables()
-                    if len(tables) > 1:
-                        has_tables = True
+            if pdfplumber:
+                with pdfplumber.open(io.BytesIO(pdf_bytes)) as pdf:
+                    page_count = len(pdf.pages)
+                    for page in pdf.pages:
+                        tables = page.find_tables()
+                        if len(tables) > 1:
+                            has_tables = True
+            else:
+                reader = PdfReader(io.BytesIO(pdf_bytes))
+                page_count = len(reader.pages)
+        except Exception:
+            pass
+    elif docx_bytes:
+        try:
+            doc = Document(io.BytesIO(docx_bytes))
+            if len(doc.tables) > 1:
+                has_tables = True
         except Exception:
             pass
 
@@ -475,10 +517,13 @@ def ats_check(
     fname_lower = filename.lower()
     skills = skills_extracted or []
 
+    is_pdf = fname_lower.endswith(".pdf")
+    is_docx = fname_lower.endswith((".docx", ".doc"))
+
     # 1. Hidden text
-    if fname_lower.endswith(".pdf"):
+    if is_pdf:
         findings.extend(_check_hidden_pdf(file_bytes))
-    elif fname_lower.endswith(".docx"):
+    elif is_docx:
         findings.extend(_check_hidden_docx(file_bytes))
 
     # 2. Invisible characters
@@ -496,7 +541,8 @@ def ats_check(
     # 6. Parseability & Stats
     parse_findings, stats = _check_parseability(
         text,
-        file_bytes if fname_lower.endswith(".pdf") else None
+        pdf_bytes=file_bytes if is_pdf else None,
+        docx_bytes=file_bytes if is_docx else None
     )
     findings.extend(parse_findings)
 

@@ -94,3 +94,4 @@ with sync_playwright() as p:
 
     print("\nALL 5 STEPS & FEATURES VERIFIED SUCCESSFULLY!")
     browser.close()
+

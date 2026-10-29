@@ -11,5 +11,7 @@ verification_captures/
 *.tmp
 *.zip
 seed/
+data/cache/
+data/user_store/
 
 

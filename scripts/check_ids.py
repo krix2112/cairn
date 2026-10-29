@@ -14,3 +14,4 @@ print("Total referenced JS IDs:", len(all_js_ids))
 print("Missing IDs:", missing)
 for m in sorted(missing):
     print("  MISSING ID:", m)
+

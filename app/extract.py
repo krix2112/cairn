@@ -65,36 +65,160 @@ def dedupe_skills(skills: List[SkillItem]) -> List[dict]:
 # ---------------------------------------------------------------------------
 # Text Extraction Helpers
 # ---------------------------------------------------------------------------
+def _extract_docx_text(src) -> str:
+    """Extract complete text from DOCX including headers, paragraphs, and tables."""
+    try:
+        doc = Document(src)
+    except Exception:
+        return ""
+
+    parts: List[str] = []
+
+    # 1. Header paragraphs from all sections
+    try:
+        for section in doc.sections:
+            if section.header:
+                for p in section.header.paragraphs:
+                    t = p.text.strip()
+                    if t:
+                        parts.append(t)
+    except Exception:
+        pass
+
+    # 2. Main body paragraphs
+    for p in doc.paragraphs:
+        t = p.text.strip()
+        if t:
+            parts.append(t)
+
+    # 3. Tables (crucial for resume skills, experience & education grids)
+    for table in doc.tables:
+        for row in table.rows:
+            row_cells: List[str] = []
+            last_text = None
+            for cell in row.cells:
+                t = cell.text.strip()
+                if t and t != last_text:
+                    row_cells.append(t)
+                    last_text = t
+            if row_cells:
+                parts.append(" | ".join(row_cells))
+
+    # 4. Footer paragraphs from all sections
+    try:
+        for section in doc.sections:
+            if section.footer:
+                for p in section.footer.paragraphs:
+                    t = p.text.strip()
+                    if t:
+                        parts.append(t)
+    except Exception:
+        pass
+
+    return "\n".join(parts)
+
+
+def _extract_doc_binary_text(raw_bytes: bytes) -> str:
+    """Extract readable text streams from legacy Word 97-2003 (.doc) binary files."""
+    # Try UTF-16LE text sequences (standard in WordDocument stream)
+    utf16_matches = re.findall(rb'(?:[\x20-\x7E\t\n\r]\x00){3,}', raw_bytes)
+    utf16_text = [m.decode('utf-16le', errors='ignore').strip() for m in utf16_matches if len(m) >= 6]
+
+    # Try ASCII / Latin-1 text sequences
+    ascii_matches = re.findall(rb'[\x20-\x7E\t\n\r]{4,}', raw_bytes)
+    ascii_text = [m.decode('utf-8', errors='ignore').strip() for m in ascii_matches if len(m) >= 4]
+
+    combined: List[str] = []
+    seen = set()
+    for chunk in utf16_text + ascii_text:
+        chunk_clean = chunk.strip()
+        if not chunk_clean:
+            continue
+        low = chunk_clean.lower()
+        if any(bad in low for bad in ("times new roman", "calibri", "normal.dotm", "microsoft word", "root entry", "worddocument")):
+            continue
+        if len(chunk_clean) > 2 and chunk_clean not in seen:
+            seen.add(chunk_clean)
+            combined.append(chunk_clean)
+
+    return "\n".join(combined)
+
+
 def read_text(path_or_bytes, name: str = "") -> str:
     name = (name or str(path_or_bytes)).lower()
+    raw_bytes: Optional[bytes] = None
     if isinstance(path_or_bytes, bytes):
+        raw_bytes = path_or_bytes
         src = io.BytesIO(path_or_bytes)
     else:
         src = path_or_bytes
+        if isinstance(src, str) and os.path.exists(src):
+            try:
+                with open(src, "rb") as f:
+                    raw_bytes = f.read()
+            except Exception:
+                pass
 
+    # DOCX format
     if name.endswith(".docx"):
-        return "\n".join(p.text for p in Document(src).paragraphs)
+        extracted = _extract_docx_text(src)
+        if extracted:
+            return extracted.replace("\x00", "")
+
+    # Legacy DOC format
+    if name.endswith(".doc"):
+        # First attempt python-docx (many modern files are docx with .doc extension)
+        extracted = _extract_docx_text(src)
+        if extracted and len(extracted) > 50:
+            return extracted.replace("\x00", "")
+        # Fallback to binary OLE stream extraction
+        if raw_bytes is None and isinstance(src, io.BytesIO):
+            raw_bytes = src.getvalue()
+        if raw_bytes:
+            return _extract_doc_binary_text(raw_bytes).replace("\x00", "")
+        return ""
+
+    # Plain text / Markdown / JSON / CSV
     if name.endswith((".txt", ".text", ".md", ".json", ".csv")):
         if isinstance(src, io.BytesIO):
-            return src.getvalue().decode("utf-8", errors="ignore")
+            return src.getvalue().decode("utf-8", errors="ignore").replace("\x00", "")
         if isinstance(path_or_bytes, bytes):
-            return path_or_bytes.decode("utf-8", errors="ignore")
+            return path_or_bytes.decode("utf-8", errors="ignore").replace("\x00", "")
         try:
             with open(src, "r", encoding="utf-8", errors="ignore") as f:
-                return f.read()
+                return f.read().replace("\x00", "")
         except Exception:
             return ""
+
+    # PDF format
     try:
         reader = PdfReader(src)
-        return "\n".join(p.extract_text() or "" for p in reader.pages)
+        pdf_text = "\n".join(p.extract_text() or "" for p in reader.pages)
+        if pdf_text.strip():
+            return pdf_text.replace("\x00", "")
     except Exception:
-        if isinstance(src, io.BytesIO):
-            return src.getvalue().decode("utf-8", errors="ignore")
+        pass
+
+    # Secondary PDF fallback using pdfplumber if pypdf yielded sparse or no text
+    if raw_bytes or isinstance(src, io.BytesIO):
+        b = raw_bytes if raw_bytes is not None else src.getvalue()
         try:
-            with open(src, "r", encoding="utf-8", errors="ignore") as f:
-                return f.read()
+            import pdfplumber
+            with pdfplumber.open(io.BytesIO(b)) as pdf:
+                plumb_text = "\n".join(page.extract_text() or "" for page in pdf.pages)
+                if plumb_text.strip():
+                    return plumb_text.replace("\x00", "")
         except Exception:
-            return ""
+            pass
+
+    if isinstance(src, io.BytesIO):
+        decoded = src.getvalue().decode("utf-8", errors="ignore")
+        return decoded.replace("\x00", "")
+    try:
+        with open(src, "r", encoding="utf-8", errors="ignore") as f:
+            return f.read().replace("\x00", "")
+    except Exception:
+        return ""
 
 
 # ---------------------------------------------------------------------------

@@ -332,6 +332,7 @@ class SupabaseUserDataStore:
         self.supabase_url = supabase_url.rstrip("/")
         self.service_key = supabase_service_key
         self._client = client
+        self._local_fallback = LocalUserDataStore()
 
     def _headers(self, prefer_return: bool = True) -> Dict[str, str]:
         h = {
@@ -393,12 +394,22 @@ class SupabaseUserDataStore:
             "socials": socials
         }
         resp = self._request("POST", "/rest/v1/resumes", headers=self._headers(), json=payload)
-        if resp is None or resp.status_code not in (200, 201):
-            # Rollback storage file
-            self._request("DELETE", f"/storage/v1/object/resumes/{file_path}", headers=self._headers())
-            raise HTTPException(status_code=500, detail="Failed to save resume record")
-        rows = resp.json()
-        return rows[0] if isinstance(rows, list) and rows else payload
+        if resp is not None and resp.status_code in (200, 201):
+            rows = resp.json()
+            return rows[0] if isinstance(rows, list) and rows else payload
+        if resp is not None and resp.status_code == 404:
+            return self._local_fallback.create_resume(
+                user_id=user_id,
+                title=title,
+                file_name=file_name,
+                file_bytes=file_bytes,
+                content_type=content_type,
+                extracted=extracted,
+                socials=socials
+            )
+        # Rollback storage file
+        self._request("DELETE", f"/storage/v1/object/resumes/{file_path}", headers=self._headers())
+        raise HTTPException(status_code=500, detail="Failed to save resume record")
 
     def list_resumes(self, user_id: str) -> List[dict]:
         resp = self._request(
@@ -408,6 +419,8 @@ class SupabaseUserDataStore:
         )
         if resp is not None and resp.status_code == 200:
             return resp.json()
+        if resp is not None and resp.status_code == 404:
+            return self._local_fallback.list_resumes(user_id)
         return []
 
     def get_resume(self, user_id: str, resume_id: str) -> Optional[dict]:
@@ -420,6 +433,8 @@ class SupabaseUserDataStore:
             rows = resp.json()
             if rows:
                 return rows[0]
+        if resp is not None and resp.status_code == 404:
+            return self._local_fallback.get_resume(user_id, resume_id)
         return None
 
     def update_resume(self, user_id: str, resume_id: str, title: Optional[str] = None,
@@ -517,6 +532,18 @@ class SupabaseUserDataStore:
         if resp is not None and resp.status_code in (200, 201):
             rows = resp.json()
             return rows[0] if isinstance(rows, list) and rows else payload
+        if resp is not None and resp.status_code == 404:
+            return self._local_fallback.create_analysis(
+                user_id=user_id,
+                resume_id=resume_id,
+                jd_title=jd_title,
+                jd_company=jd_company,
+                jd=jd,
+                result=result,
+                match_score=match_score,
+                readiness_score=readiness_score,
+                ats_score=ats_score
+            )
         return payload
 
     def list_analyses(self, user_id: str) -> List[dict]:
@@ -527,6 +554,8 @@ class SupabaseUserDataStore:
         )
         if resp is not None and resp.status_code == 200:
             return resp.json()
+        if resp is not None and resp.status_code == 404:
+            return self._local_fallback.list_analyses(user_id)
         return []
 
     def get_analysis(self, user_id: str, analysis_id: str) -> Optional[dict]:
@@ -539,6 +568,8 @@ class SupabaseUserDataStore:
             rows = resp.json()
             if rows:
                 return rows[0]
+        if resp is not None and resp.status_code == 404:
+            return self._local_fallback.get_analysis(user_id, analysis_id)
         return None
 
     def delete_analysis(self, user_id: str, analysis_id: str) -> bool:
@@ -547,6 +578,8 @@ class SupabaseUserDataStore:
             f"/rest/v1/analyses?id=eq.{analysis_id}&user_id=eq.{user_id}",
             headers=self._headers()
         )
+        if resp is not None and resp.status_code == 404:
+            return self._local_fallback.delete_analysis(user_id, analysis_id)
         return resp is not None and resp.status_code in (200, 204)
 
     def update_roadmap_done(self, user_id: str, analysis_id: str, roadmap_done: dict) -> Optional[dict]:
@@ -581,6 +614,8 @@ class SupabaseUserDataStore:
                 }
                 for a in rows
             ]
+        if resp is not None and resp.status_code == 404:
+            return self._local_fallback.get_progress(user_id)
         return []
 
     # Applications
@@ -592,6 +627,8 @@ class SupabaseUserDataStore:
         )
         if resp is not None and resp.status_code == 200:
             return resp.json()
+        if resp is not None and resp.status_code == 404:
+            return self._local_fallback.list_applications(user_id)
         return []
 
     def create_application(self, user_id: str, data: dict) -> dict:
