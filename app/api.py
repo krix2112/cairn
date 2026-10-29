@@ -26,13 +26,14 @@ from . import me
 from .me import get_user_store
 
 MAX_FILE_SIZE = 4 * 1024 * 1024  # 4 MB
-ALLOWED_RESUME_EXTS = (".pdf", ".docx")
+ALLOWED_RESUME_EXTS = (".pdf", ".docx", ".txt")
 ALLOWED_JD_EXTS = (".pdf", ".docx", ".txt")
 
 ALLOWED_RESUME_MIMES = {
     "application/pdf",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
     "application/msword",
+    "text/plain",
     "application/octet-stream"
 }
 
@@ -62,6 +63,17 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
+
+@app.middleware("http")
+async def handle_api_prefix(request: Request, call_next):
+    path = request.scope.get("path", "")
+    if path.startswith("/api/") and not path.startswith("/api/index.py"):
+        subpath = path[4:]
+        if not subpath.startswith("/"):
+            subpath = "/" + subpath
+        request.scope["path"] = subpath
+    return await call_next(request)
+
 
 app.include_router(me.router)
 

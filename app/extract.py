@@ -74,6 +74,16 @@ def read_text(path_or_bytes, name: str = "") -> str:
 
     if name.endswith(".docx"):
         return "\n".join(p.text for p in Document(src).paragraphs)
+    if name.endswith((".txt", ".text", ".md", ".json", ".csv")):
+        if isinstance(src, io.BytesIO):
+            return src.getvalue().decode("utf-8", errors="ignore")
+        if isinstance(path_or_bytes, bytes):
+            return path_or_bytes.decode("utf-8", errors="ignore")
+        try:
+            with open(src, "r", encoding="utf-8", errors="ignore") as f:
+                return f.read()
+        except Exception:
+            return ""
     try:
         reader = PdfReader(src)
         return "\n".join(p.extract_text() or "" for p in reader.pages)
@@ -440,15 +450,15 @@ def llm_extract(text: str, kind: str) -> dict:
     )
 
     last_err = None
-    for attempt in range(5):
+    for attempt in range(2):
         try:
             raw = call_llm(prompt, provider, model)
             return parse_and_validate(raw)
         except Exception as e:
             last_err = e
-            if attempt < 4:
+            if attempt < 1:
                 import time
-                time.sleep(3 * (attempt + 1))
+                time.sleep(1)
                 continue
     raise last_err or RuntimeError("LLM extraction failed after retry")
 
